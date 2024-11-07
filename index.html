@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جستجوی ISSN</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        #search-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result-container {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .result-table th, .result-table td {
+            padding: 10px;
+            text-align: right;
+            border: 1px solid #ddd;
+        }
+        .result-table th {
+            background-color: #f2f2f2;
+        }
+        .not-available {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="search-container">
+        <h2>لطفا ISSN مجله مورد نظر خود را وارد کنید:</h2>
+        <input type="text" id="issnInput" placeholder="ISSN را وارد کنید">
+        <button onclick="searchISSN()">جستجو</button>
+        <button onclick="clearSearch()">پاک کردن</button>
+    </div>
+    
+    <div id="loading">در حال جستجو...</div>
+    <div id="result-container"></div>
+
+    <script>
+        const fileUrl = './Total.json'; // لینک نسبی JSON در همان دایرکتوری
+        let dataCache = []; // کش داده‌ها
+
+        // بارگذاری فایل JSON و ذخیره‌سازی آن در کش
+        async function loadJSON() {
+            if (dataCache.length === 0) {
+                try {
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) {
+                        throw new Error('خطا در بارگذاری فایل JSON');
+                    }
+                    dataCache = await response.json();
+                } catch (error) {
+                    alert('خطا در بارگذاری داده‌ها: ' + error.message);
+                    document.getElementById('loading').style.display = 'none'; // پنهان کردن عبارت در حال جستجو
+                }
+            }
+        }
+
+        function searchISSN() {
+            const issn = document.getElementById('issnInput').value.trim();
+            if (!issn) {
+                alert('لطفا ISSN را وارد کنید.');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block'; // نمایش عبارت در حال جستجو
+            document.getElementById('result-container').innerHTML = ''; // پاک کردن نتایج قبلی
+
+            loadJSON().then(() => {
+                const results = dataCache.filter(item => {
+                    return item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase();
+                });
+
+                document.getElementById('loading').style.display = 'none'; // پنهان کردن عبارت در حال جستجو
+                if (results.length > 0) {
+                    displayResults(results);
+                } else {
+                    displayNotAvailable();
+                }
+            });
+        }
+
+        function displayResults(results) {
+            const resultContainer = document.getElementById('result-container');
+            let tableHTML = `
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>ISSN</th>
+                            <th>EiSSN</th>
+                            <th>Journal Name</th>
+                            <th>Category</th>
+                            <th>Total Citations 2023</th>
+                            <th>JIF 2023</th>
+                            <th>JIF 2022</th>
+                            <th>JIF 2021</th>
+                            <th>JIF 2020</th>
+                            <th>JIF Quartile 2023</th>
+                            <th>JCI 2023</th>
+                            <th>% of OA Gold 2023</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            results.forEach(item => {
+                tableHTML += `
+                    <tr>
+                        <td>${item.ISSN}</td>
+                        <td>${item.EiSSN}</td>
+                        <td>${item['Journal Name']}</td>
+                        <td>${item.Category}</td>
+                        <td>${item['Total Citations 2023']}</td>
+                        <td>${item['JIF 2023']}</td>
+                        <td>${item['JIF 2022']}</td>
+                        <td>${item['JIF 2021']}</td>
+                        <td>${item['JIF 2020']}</td>
+                        <td>${item['JIF Quartile 2023']}</td>
+                        <td>${item['JCI 2023']}</td>
+                        <td>${item['% of OA Gold 2023']}</td>
+                    </tr>
+                `;
+            });
+            tableHTML += `</tbody></table>`;
+            resultContainer.innerHTML = tableHTML;
+        }
+
+        function displayNotAvailable() {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<p class="not-available">نتیجه‌ای یافت نشد.</p>`;
+        }
+
+        function clearSearch() {
+            document.getElementById('issnInput').value = '';
+            document.getElementById('result-container').innerHTML = '';
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
