@@ -92,6 +92,7 @@
     <script>
         const fileUrl = './Total.json';
         let dataCache = [];
+        let chartInstance = null;  // متغیر جدید برای ذخیره نمودار
 
         async function loadJSON() {
             if (dataCache.length === 0) {
@@ -169,7 +170,13 @@
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
-            new Chart(ctx, {
+            // اگر قبلاً نمودار ایجاد شده باشد، آن را پاک کن
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // ایجاد نمودار جدید
+            chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: years,
@@ -231,7 +238,9 @@
             document.getElementById('table-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
             document.getElementById('jifChart').style.display = 'none';
-            location.reload(); // رفرش کردن صفحه برای جستجو جدید
+
+            // رفرش کردن صفحه برای جستجو جدید
+            location.reload();
         }
     </script>
 </body>
