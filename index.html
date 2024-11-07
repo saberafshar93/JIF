@@ -8,8 +8,13 @@
         body {
             font-family: Arial, sans-serif;
             direction: rtl;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f4f4f4;
+            height: 100vh; /* ارتفاع صفحه به اندازه‌ی تمام صفحه */
+            display: flex;
+            justify-content: center;
+            align-items: center; /* قرار دادن محتوای صفحه در وسط */
         }
         #search-container {
             background-color: white;
@@ -35,11 +40,6 @@
         }
         button:hover {
             background-color: #0056b3;
-        }
-        #result-container {
-            display: flex;
-            margin-top: 20px;
-            align-items: flex-start;
         }
         #loading {
             display: none;
@@ -68,9 +68,10 @@
             text-align: center;
         }
         #jifChart {
-            width: 20px; /* تغییر اندازه به 1px که معادل یک دهم اندازه‌ی قبلی است */
-            height: 20px; /* تغییر اندازه به 1px */
-            margin-right: 2px;
+            width: 15cm; /* تنظیم اندازه به ۵ سانتیمتر */
+            height: 15cm; /* تنظیم اندازه به ۵ سانتیمتر */
+            margin: 0 auto; /* قرار دادن در وسط صفحه */
+            display: block; /* تغییر وضعیت نمایش به بلوک برای استفاده از margin auto */
         }
     </style>
 </head>
@@ -168,7 +169,7 @@
             });
 
             const years = ['2020', '2021', '2022', '2023'];
-            const ctx = document.getElementById('jifChart').getContext('1d');
+            const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
             new Chart(ctx, {
@@ -191,9 +192,9 @@
                     scales: {
                         x: {
                             ticks: {
-                                maxRotation: 0, // جلوگیری از چرخش سال‌ها
-                                minRotation: 0, // جلوگیری از چرخش سال‌ها
-                                stepSize: 0.5, // فاصله کمتری برای نمایش سال‌ها
+                                maxRotation: 0,
+                                minRotation: 0,
+                                stepSize: 0.5,
                             },
                             title: {
                                 display: true,
