@@ -77,12 +77,13 @@
     
     <div id="loading">در حال جستجو...</div>
     <div id="result-container"></div>
+    <canvas id="jifChart" width="400" height="200" style="display:none; margin-top:20px;"></canvas>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const fileUrl = './Total.json'; // لینک نسبی JSON در همان دایرکتوری
-        let dataCache = []; // کش داده‌ها
+        const fileUrl = './Total.json';
+        let dataCache = [];
 
-        // بارگذاری فایل JSON و ذخیره‌سازی آن در کش
         async function loadJSON() {
             if (dataCache.length === 0) {
                 try {
@@ -93,7 +94,7 @@
                     dataCache = await response.json();
                 } catch (error) {
                     alert('خطا در بارگذاری داده‌ها: ' + error.message);
-                    document.getElementById('loading').style.display = 'none'; // پنهان کردن عبارت در حال جستجو
+                    document.getElementById('loading').style.display = 'none';
                 }
             }
         }
@@ -105,76 +106,116 @@
                 return;
             }
 
-            document.getElementById('loading').style.display = 'block'; // نمایش عبارت در حال جستجو
-            document.getElementById('result-container').innerHTML = ''; // پاک کردن نتایج قبلی
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result-container').innerHTML = '';
+            document.getElementById('jifChart').style.display = 'none';
 
             loadJSON().then(() => {
-                const results = dataCache.filter(item => {
-                    return item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase();
-                });
+                const results = dataCache.filter(item =>
+                    item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase()
+                );
 
-                document.getElementById('loading').style.display = 'none'; // پنهان کردن عبارت در حال جستجو
+                document.getElementById('loading').style.display = 'none';
                 if (results.length > 0) {
-                    displayResults(results);
+                    displayResults(results[0]);
+                    plotChart(results[0]);
                 } else {
                     displayNotAvailable();
                 }
             });
         }
 
-        function displayResults(results) {
+        function displayResults(item) {
             const resultContainer = document.getElementById('result-container');
             let tableHTML = `
                 <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th>ISSN</th>
-                            <th>EiSSN</th>
-                            <th>Journal Name</th>
-                            <th>Category</th>
-                            <th>Total Citations 2023</th>
-                            <th>JIF 2023</th>
-                            <th>JIF 2022</th>
-                            <th>JIF 2021</th>
-                            <th>JIF 2020</th>
-                            <th>JIF Quartile 2023</th>
-                            <th>JCI 2023</th>
-                            <th>% of OA Gold 2023</th>
-                        </tr>
-                    </thead>
                     <tbody>
+                        <tr><th>ISSN</th><td>${item.ISSN || 'نا‌موجود'}</td></tr>
+                        <tr><th>EiSSN</th><td>${item.EiSSN || 'نا‌موجود'}</td></tr>
+                        <tr><th>Journal Name</th><td>${item['Journalname'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>Category</th><td>${item.Category || 'نا‌موجود'}</td></tr>
+                        <tr><th>Total Citations 2023</th><td>${item['TotalCitations'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>JIF 2023</th><td>${item['JIF 2023'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>JIF 2022</th><td>${item['Column_10'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>JIF 2021</th><td>${item['Column_11'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>JIF 2020</th><td>${item['Column_12'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>JIF Quartile 2023</th><td>${item['JIFQuartile'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>JCI 2023</th><td>${item['JCI 2023'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold'] || 'نا‌موجود'}</td></tr>
+                    </tbody>
+                </table>
             `;
-            results.forEach(item => {
-                tableHTML += `
-                    <tr>
-                        <td>${item.ISSN}</td>
-                        <td>${item.EiSSN}</td>
-                        <td>${item['Journalname']}</td>
-                        <td>${item.Category}</td>
-                        <td>${item['TotalCitations']}</td>
-                        <td>${item['JIF 2023']}</td>
-                        <td>${item['Column_10']}</td>
-                        <td>${item['Column_11']}</td>
-                        <td>${item['Column_12']}</td>
-                        <td>${item['JIFQuartile']}</td>
-                        <td>${item['JCI 2023']}</td>
-                        <td>${item['% of OA Gold']}</td>
-                    </tr>
-                `;
-            });
-            tableHTML += `</tbody></table>`;
             resultContainer.innerHTML = tableHTML;
+        }
+
+        function plotChart(item) {
+            const jifData = [
+                item['JIF 2023'] || null,
+                item['Column_10'] || null,
+                item['Column_11'] || null,
+                item['Column_12'] || null
+            ].map(value => value !== null ? parseFloat(value) : null);
+
+            const years = ['2023', '2022', '2021', '2020'];
+            const ctx = document.getElementById('jifChart').getContext('2d');
+            document.getElementById('jifChart').style.display = 'block';
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'JIF (Impact Factor)',
+                        data: jifData,
+                        borderColor: 'blue',
+                        backgroundColor: 'red',
+                        pointBackgroundColor: 'red',
+                        fill: false,
+                        borderWidth: 1,
+                        pointRadius: 5,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'JIF Value'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.2
+                        }
+                    }
+                }
+            });
         }
 
         function displayNotAvailable() {
             const resultContainer = document.getElementById('result-container');
             resultContainer.innerHTML = `<p class="not-available">نتیجه‌ای یافت نشد.</p>`;
+            document.getElementById('jifChart').style.display = 'none';
         }
 
         function clearSearch() {
             document.getElementById('issnInput').value = '';
             document.getElementById('result-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
+            document.getElementById('jifChart').style.display = 'none';
         }
     </script>
 </body>
