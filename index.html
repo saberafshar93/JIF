@@ -68,8 +68,8 @@
             text-align: center;
         }
         #jifChart {
-            width: 378px; /* معادل 10 سانتی‌متر */
-            height: 378px; /* معادل 10 سانتی‌متر */
+            width: 150px; /* تغییر اندازه به 150px که معادل یک دهم اندازه‌ی قبلی است */
+            height: 150px; /* تغییر اندازه به 150px */
             margin-right: 20px;
         }
     </style>
@@ -190,6 +190,11 @@
                 options: {
                     scales: {
                         x: {
+                            ticks: {
+                                maxRotation: 0, // جلوگیری از چرخش سال‌ها
+                                minRotation: 0, // جلوگیری از چرخش سال‌ها
+                                stepSize: 0.5, // فاصله کمتری برای نمایش سال‌ها
+                            },
                             title: {
                                 display: true,
                                 text: 'سال‌ها'
