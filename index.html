@@ -163,11 +163,9 @@
                 item['Column_11'] || null,
                 item['Column_10'] || null,
                 item['JIF 2023'] || null
-            ].map((value, index) => {
-                return value !== null ? { x: index, y: parseFloat(value) } : null;
-            });
+            ].filter(value => value !== null); // حذف مقادیر null
 
-            const years = ['2020', '2021', '2022', '2023'];
+            const years = ['2020', '2021', '2022', '2023'].slice(0, jifData.length); // سال‌ها مطابق داده‌ها
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
@@ -180,7 +178,7 @@
                         data: jifData,
                         borderColor: 'blue',
                         backgroundColor: 'red',
-                        pointBackgroundColor: ['red', 'red', 'red', 'gold'],
+                        pointBackgroundColor: ['red', 'red', 'red', 'gold'].slice(0, jifData.length),
                         fill: false,
                         borderWidth: 1,
                         pointRadius: 4,
@@ -191,9 +189,9 @@
                     scales: {
                         x: {
                             ticks: {
-                                maxRotation: 0, // جلوگیری از چرخش سال‌ها
-                                minRotation: 0, // جلوگیری از چرخش سال‌ها
-                                stepSize: 0.5, // فاصله کمتری برای نمایش سال‌ها
+                                maxRotation: 0,
+                                minRotation: 0,
+                                stepSize: 0.5,
                             },
                             title: {
                                 display: true,
