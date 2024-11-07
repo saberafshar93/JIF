@@ -79,7 +79,7 @@
     <div id="result-container"></div>
 
     <script>
-        const fileUrl = 'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total.json'; // لینک JSON جدید
+        const fileUrl = './Total.json'; // لینک نسبی JSON در همان دایرکتوری
         let dataCache = []; // کش داده‌ها
 
         // بارگذاری فایل JSON و ذخیره‌سازی آن در کش
@@ -109,7 +109,6 @@
             document.getElementById('result-container').innerHTML = ''; // پاک کردن نتایج قبلی
 
             loadJSON().then(() => {
-                let resultFound = false;
                 const results = dataCache.filter(item => {
                     return item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase();
                 });
