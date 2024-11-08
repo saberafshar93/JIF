@@ -75,6 +75,12 @@
     </style>
 </head>
 <body>
+    <div style="text-align: center; font-size: 10px; color: #007BFF; margin-bottom: 10px;">
+        <a href="https://www.linkedin.com/in/saber-s-afshar/" target="_blank" style="color: #007BFF; text-decoration: none;">برنامه نویس: Saber SamadiAfshar</a>
+        |
+        <a href="https://www.linkedin.com/in/ali-nik-akhtar-84ba791a9/" target="_blank" style="color: #007BFF; text-decoration: none;">ارائه دهنده: Ali NikAkhtar</a>
+    </div>
+
     <div id="search-container">
         <h2>لطفا ISSN مجله مورد نظر خود را وارد کنید:</h2>
         <input type="text" id="issnInput" placeholder="ISSN را وارد کنید">
@@ -92,7 +98,7 @@
     <script>
         const fileUrl = './Total.json';
         let dataCache = [];
-        let chartInstance = null;  // متغیر جدید برای ذخیره نمودار
+        let chartInstance = null;
 
         async function loadJSON() {
             if (dataCache.length === 0) {
@@ -164,18 +170,16 @@
                 item['Column_11'] || null,
                 item['Column_10'] || null,
                 item['JIF 2023'] || null
-            ].filter(value => value !== null); // حذف مقادیر null
+            ].filter(value => value !== null);
 
-            const years = ['2020', '2021', '2022', '2023'].slice(0, jifData.length); // سال‌ها مطابق داده‌ها
+            const years = ['2020', '2021', '2022', '2023'].slice(0, jifData.length);
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
-            // اگر قبلاً نمودار ایجاد شده باشد، آن را پاک کن
             if (chartInstance) {
                 chartInstance.destroy();
             }
 
-            // ایجاد نمودار جدید
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -239,7 +243,6 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('jifChart').style.display = 'none';
 
-            // رفرش کردن صفحه برای جستجو جدید
             location.reload();
         }
     </script>
