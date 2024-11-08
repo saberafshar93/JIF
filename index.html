@@ -92,12 +92,9 @@
 </head>
 <body>
     <div style="text-align: center; font-size: 12px; color: #007BFF; margin-bottom: 5px;">
-        
-        </a>
         Programmer: <a href="https://www.linkedin.com/in/saber-s-afshar/" target="_blank">Saber SamadiAfshar</a>
-	<img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
         |
-	<img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
         Provider: <a href="https://www.linkedin.com/in/ali-nik-akhtar-84ba791a9/" target="_blank">Ali NikAkhtar</a>
     </div>
 
@@ -171,7 +168,7 @@
                         <tr><th>Journal Name</th><td>${item['Journalname'] || 'Not Available'}</td></tr>
                         <tr><th>Category</th><td>${item.Category || 'Not Available'}</td></tr>
                         <tr><th>Total Citations 2023</th><td>${item['TotalCitations'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF 2023 (Impact Factor) </th><td>${item['JIF 2023'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF 2023 (Impact Factor) </th><td style="font-weight: bold;">${item['JIF 2023'] || 'Not Available'}</td></tr>
                         <tr><th>JIF 2022</th><td>${item['Column_10'] || 'Not Available'}</td></tr>
                         <tr><th>JIF 2021</th><td>${item['Column_11'] || 'Not Available'}</td></tr>
                         <tr><th>JIF 2020</th><td>${item['Column_12'] || 'Not Available'}</td></tr>
@@ -226,25 +223,15 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Years'
+                                text: 'Year'
                             }
                         },
                         y: {
                             beginAtZero: false,
                             title: {
                                 display: true,
-                                text: 'JIF Value'
+                                text: 'Impact Factor'
                             }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    elements: {
-                        line: {
-                            tension: 0.2
                         }
                     }
                 }
@@ -253,17 +240,15 @@
 
         function displayNotAvailable() {
             const tableContainer = document.getElementById('table-container');
-            tableContainer.innerHTML = `<p class="not-available">No results found.</p>`;
-            document.getElementById('jifChart').style.display = 'none';
+            tableContainer.innerHTML = '<div class="not-available">Data not available for the entered ISSN.</div>';
         }
 
         function clearSearch() {
             document.getElementById('issnInput').value = '';
+            document.getElementById('result-container').style.display = 'none';
             document.getElementById('table-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
             document.getElementById('jifChart').style.display = 'none';
-
-            location.reload();
         }
     </script>
 </body>
