@@ -172,7 +172,7 @@
                         <tr><th>JIF 2022</th><td>${item['Column_10'] || 'Not Available'}</td></tr>
                         <tr><th>JIF 2021</th><td>${item['Column_11'] || 'Not Available'}</td></tr>
                         <tr><th>JIF 2020</th><td>${item['Column_12'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF Quartile 2023</th><td>${item['JIFQuartile'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF Quartile 2023</th><td style="font-weight: bold;">${item['JIFQuartile'] || 'Not Available'}</td></tr>
                         <tr><th>JCI 2023</th><td>${item['JCI 2023'] || 'Not Available'}</td></tr>
                         <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold'] || 'Not Available'}</td></tr>
                     </tbody>
@@ -219,11 +219,11 @@
                             ticks: {
                                 maxRotation: 0,
                                 minRotation: 0,
-                                stepSize: 0.5,
+                                stepSize: 1,  // Adjusted the step size for better spacing of the years
                             },
                             title: {
                                 display: true,
-                                text: 'Year'
+                                text: 'Years'
                             }
                         },
                         y: {
@@ -232,6 +232,16 @@
                                 display: true,
                                 text: 'Impact Factor'
                             }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.2
                         }
                     }
                 }
