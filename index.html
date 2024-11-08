@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جستجوی ISSN</title>
+    <title>ISSN Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -102,13 +102,13 @@
     </div>
 
     <div id="search-container">
-        <h2>لطفا ISSN مجله مورد نظر خود را وارد کنید:</h2>
-        <input type="text" id="issnInput" placeholder="ISSN را وارد کنید">
-        <button onclick="searchISSN()">جستجو</button>
-        <button onclick="clearSearch()">پاک کردن</button>
+        <h2>Please enter the ISSN of the journal:</h2>
+        <input type="text" id="issnInput" placeholder="Enter ISSN">
+        <button onclick="searchISSN()">Search</button>
+        <button onclick="clearSearch()">Clear</button>
     </div>
     
-    <div id="loading">در حال جستجو...</div>
+    <div id="loading">Searching...</div>
     <div id="result-container">
         <div id="table-container"></div>
         <canvas id="jifChart" style="display:none;"></canvas>
@@ -125,11 +125,11 @@
                 try {
                     const response = await fetch(fileUrl);
                     if (!response.ok) {
-                        throw new Error('خطا در بارگذاری فایل JSON');
+                        throw new Error('Error loading JSON file');
                     }
                     dataCache = await response.json();
                 } catch (error) {
-                    alert('خطا در بارگذاری داده‌ها: ' + error.message);
+                    alert('Error loading data: ' + error.message);
                     document.getElementById('loading').style.display = 'none';
                 }
             }
@@ -138,7 +138,7 @@
         function searchISSN() {
             const issn = document.getElementById('issnInput').value.trim();
             if (!issn) {
-                alert('لطفا ISSN را وارد کنید.');
+                alert('Please enter an ISSN.');
                 return;
             }
 
@@ -166,18 +166,18 @@
             let tableHTML = `
                 <table class="result-table">
                     <tbody>
-                        <tr><th>ISSN</th><td>${item.ISSN || 'نا‌موجود'}</td></tr>
-                        <tr><th>EiSSN</th><td>${item.EiSSN || 'نا‌موجود'}</td></tr>
-                        <tr><th>Journal Name</th><td>${item['Journalname'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>Category</th><td>${item.Category || 'نا‌موجود'}</td></tr>
-                        <tr><th>Total Citations 2023</th><td>${item['TotalCitations'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>JIF 2023</th><td>${item['JIF 2023'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>JIF 2022</th><td>${item['Column_10'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>JIF 2021</th><td>${item['Column_11'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>JIF 2020</th><td>${item['Column_12'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>JIF Quartile 2023</th><td>${item['JIFQuartile'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>JCI 2023</th><td>${item['JCI 2023'] || 'نا‌موجود'}</td></tr>
-                        <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold'] || 'نا‌موجود'}</td></tr>
+                        <tr><th>ISSN</th><td>${item.ISSN || 'Not Available'}</td></tr>
+                        <tr><th>EiSSN</th><td>${item.EiSSN || 'Not Available'}</td></tr>
+                        <tr><th>Journal Name</th><td>${item['Journalname'] || 'Not Available'}</td></tr>
+                        <tr><th>Category</th><td>${item.Category || 'Not Available'}</td></tr>
+                        <tr><th>Total Citations 2023</th><td>${item['TotalCitations'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF 2023</th><td>${item['JIF 2023'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF 2022</th><td>${item['Column_10'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF 2021</th><td>${item['Column_11'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF 2020</th><td>${item['Column_12'] || 'Not Available'}</td></tr>
+                        <tr><th>JIF Quartile 2023</th><td>${item['JIFQuartile'] || 'Not Available'}</td></tr>
+                        <tr><th>JCI 2023</th><td>${item['JCI 2023'] || 'Not Available'}</td></tr>
+                        <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold'] || 'Not Available'}</td></tr>
                     </tbody>
                 </table>
             `;
@@ -226,14 +226,14 @@
                             },
                             title: {
                                 display: true,
-                                text: 'سال‌ها'
+                                text: 'Years'
                             }
                         },
                         y: {
                             beginAtZero: false,
                             title: {
                                 display: true,
-                                text: 'مقدار JIF'
+                                text: 'JIF Value'
                             }
                         }
                     },
@@ -253,7 +253,7 @@
 
         function displayNotAvailable() {
             const tableContainer = document.getElementById('table-container');
-            tableContainer.innerHTML = `<p class="not-available">نتیجه‌ای یافت نشد.</p>`;
+            tableContainer.innerHTML = `<p class="not-available">No results found.</p>`;
             document.getElementById('jifChart').style.display = 'none';
         }
 
