@@ -1,10 +1,15 @@
-﻿import tkinter as tk
+﻿pip install requests matplotlib
+
+pip install pyperclip
+
+import tkinter as tk
 from tkinter import messagebox
 import requests
 import json
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pyperclip  # برای دسترسی به کلیپ‌بورد
+from matplotlib.ticker import MaxNLocator  # برای تنظیم مرتب مقادیر محور Y
 
 # URL فایل JSON
 file_url = "https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total.json"
@@ -70,30 +75,38 @@ def display_results(item):
     
     table.pack()
 
-# رسم نمودار JIF
+# رسم نمودار JIF به صورت میله‌ای
 def plot_chart(item):
     # داده‌های JIF از سال 2020 تا 2023
     jif_data = [
-        item.get('Column_12', None),  # JIF 2020
-        item.get('Column_11', None),  # JIF 2021
-        item.get('Column_10', None),  # JIF 2022
-        item.get('JIF 2023', None)   # JIF 2023
+        {'year': 2020, 'jif': item.get('Column_12', None)},  # JIF 2020
+        {'year': 2021, 'jif': item.get('Column_11', None)},  # JIF 2021
+        {'year': 2022, 'jif': item.get('Column_10', None)},  # JIF 2022
+        {'year': 2023, 'jif': item.get('JIF 2023', None)}    # JIF 2023
     ]
     
-    # حذف مقادیر None از داده‌ها
-    jif_data = [data for data in jif_data if data is not None]
-    years = ['2020', '2021', '2022', '2023'][:len(jif_data)]
+    # فیلتر کردن داده‌ها برای حذف None و مرتب‌سازی بر اساس سال
+    jif_data = [data for data in jif_data if data['jif'] is not None]
+    jif_data.sort(key=lambda x: x['year'])  # مرتب‌سازی بر اساس سال
+
+    # استخراج مقادیر برای رسم نمودار
+    years = [str(data['year']) for data in jif_data]
+    jif_values = [data['jif'] for data in jif_data]
     
-    if not jif_data:
+    if not jif_values:
         return
     
-    # رسم نمودار
+    # رسم نمودار میله‌ای
     fig, ax = plt.subplots(figsize=(6, 5))  # افزایش اندازه نمودار
-    ax.plot(years, jif_data, marker='o', color='b', label='JIF (Impact Factor)')
+    ax.bar(years, jif_values, color='skyblue', edgecolor='blue', label='JIF (Impact Factor)', zorder=5)  # استفاده از bar برای نمودار میله‌ای
+    
+    # اضافه کردن برچسب‌های محور X و Y
     ax.set_xlabel('Years')
     ax.set_ylabel('Impact Factor')
     ax.set_title('Impact Factor over Years')
-    ax.legend()
+    
+    # تنظیم ترتیب مقادیر محور Y
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))  # اطمینان از اینکه مقادیر محور Y به صورت صحیح و شمارشی باشند
     
     # نمایش نمودار در Tkinter
     chart_canvas = FigureCanvasTkAgg(fig, master=result_frame)
@@ -139,3 +152,30 @@ clear_button.grid(row=0, column=4, padx=10)
 result_frame = tk.Frame(root)
 
 root.mainloop()
+$$$$$$$$$$$$$$$$$$$$$$$$$
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtCore import QUrl
+
+class Browser(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        
+        # ایجاد مرورگر داخلی
+        self.browser = QWebEngineView()
+        
+        # بارگذاری وب‌سایت
+        self.browser.setUrl(QUrl('https://saberafshar93.github.io/JIF/'))  # آدرس وب‌سایت شما به QUrl تبدیل شده
+        
+        # تنظیمات پنجره
+        self.setCentralWidget(self.browser)
+        self.setWindowTitle('Journal Impact Factor')
+        self.setGeometry(100, 100, 1024, 768)
+
+if __name__ == '__main__':
+    # ایجاد اپلیکیشن و پنجره
+    app = QApplication(sys.argv)
+    window = Browser()
+    window.show()
+    sys.exit(app.exec_())
