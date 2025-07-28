@@ -1,13 +1,14 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIF Search</title>
+    <title>جستجوی ISSN</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            direction: ltr;
+            direction: rtl;
             margin: 20px;
             background-color: #f4f4f4;
         }
@@ -37,9 +38,9 @@
             background-color: #0056b3;
         }
         #result-container {
-            display: flex;
             margin-top: 20px;
-            align-items: flex-start;
+            max-height: 400px;
+            overflow-y: auto;
         }
         #loading {
             display: none;
@@ -49,16 +50,14 @@
             margin-top: 20px;
         }
         .result-table {
-            width: 60%;
+            width: 100%;
             border-collapse: collapse;
-            font-size: 0.9em;
-            line-height: 1.4;
+            margin-top: 20px;
         }
         .result-table th, .result-table td {
-            padding: 8px;
-            text-align: left;
+            padding: 10px;
+            text-align: right;
             border: 1px solid #ddd;
-            word-wrap: break-word;
         }
         .result-table th {
             background-color: #f2f2f2;
@@ -67,68 +66,46 @@
             color: red;
             text-align: center;
         }
-        #jifChart {
-            width: 10cm;
-            height: 10cm;
-            margin-right: 20px;
+        .chart-container {
+            margin-top: 30px;
+            width: 100%;
+            height: 400px;
         }
-        .linkedin-icon {
-            width: 15px;
-            height: 15px;
-            margin-left: 5px;
-            vertical-align: middle;
-        }
-        a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+        .na-value {
+            color: #999;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <div style="text-align: center; font-size: 12px; color: #007BFF; margin-bottom: 5px;">
-        Programmer: <a href="https://www.linkedin.com/in/saber-s-afshar/" target="_blank">Saber SamadiAfshar</a>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
-        |
-        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
-        Provider: <a href="https://www.linkedin.com/in/ali-nik-akhtar-84ba791a9/" target="_blank">Ali NikAkhtar</a>
-    </div>
-
     <div id="search-container">
-        <h2>Please enter the ISSN of the journal:</h2>
-        <input type="text" id="issnInput" placeholder="Enter ISSN">
-        <button onclick="searchISSN()">Search</button>
-        <button onclick="clearSearch()">Clear</button>
+        <h2>لطفا ISSN مجله مورد نظر خود را وارد کنید:</h2>
+        <input type="text" id="issnInput" placeholder="ISSN را وارد کنید">
+        <button onclick="searchISSN()">جستجو</button>
+        <button onclick="clearSearch()">پاک کردن</button>
     </div>
     
-    <div id="loading">Searching...</div>
-    <div id="result-container">
-        <div id="table-container"></div>
-        <canvas id="jifChart" style="display:none;"></canvas>
+    <div id="loading">در حال جستجو...</div>
+    <div id="result-container"></div>
+    <div class="chart-container">
+        <canvas id="jifChart"></canvas>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const fileUrl2023 = './Total.json';
-        const fileUrl2024 = 'https://raw.githubusercontent.com/saberafshar93/JIF/main/2024.json';
-        let dataCache2023 = [];
-        let dataCache2024 = [];
-        let chartInstance = null;
+        const fileUrl = 'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2024.json';
+        let dataCache = [];
+        let myChart = null;
 
         async function loadJSON() {
-            if (dataCache2023.length === 0) {
+            if (dataCache.length === 0) {
                 try {
-                    const response2023 = await fetch(fileUrl2023);
-                    if (!response2023.ok) throw new Error('Error loading 2023 JSON file');
-                    dataCache2023 = await response2023.json();
-                    
-                    const response2024 = await fetch(fileUrl2024);
-                    if (!response2024.ok) throw new Error('Error loading 2024 JSON file');
-                    dataCache2024 = await response2024.json();
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) {
+                        throw new Error('خطا در بارگذاری فایل JSON');
+                    }
+                    dataCache = await response.json();
                 } catch (error) {
-                    alert('Error loading data: ' + error.message);
+                    alert('خطا در بارگذاری داده‌ها: ' + error.message);
                     document.getElementById('loading').style.display = 'none';
                 }
             }
@@ -137,124 +114,160 @@
         function searchISSN() {
             const issn = document.getElementById('issnInput').value.trim();
             if (!issn) {
-                alert('Please enter an ISSN.');
+                alert('لطفا ISSN را وارد کنید.');
                 return;
             }
 
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('table-container').innerHTML = '';
-            document.getElementById('jifChart').style.display = 'none';
+            document.getElementById('result-container').innerHTML = '';
+            if (myChart) {
+                myChart.destroy();
+            }
 
             loadJSON().then(() => {
-                const result2023 = dataCache2023.find(item =>
-                    item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase()
-                );
-                
-                const result2024 = dataCache2024.find(item =>
-                    item[1].toLowerCase() === issn.toLowerCase() || item[2].toLowerCase() === issn.toLowerCase()
-                );
+                let resultFound = false;
+                const results = dataCache.filter(item => {
+                    return item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase();
+                });
 
                 document.getElementById('loading').style.display = 'none';
-                
-                if (result2023 || result2024) {
-                    displayResults(result2023, result2024);
-                    plotChart(result2023, result2024);
+                if (results.length > 0) {
+                    displayResults(results);
+                    createChart(results[0]);
                 } else {
                     displayNotAvailable();
                 }
             });
         }
 
-        function displayResults(item2023, item2024) {
-            const tableContainer = document.getElementById('table-container');
+        function displayResults(results) {
+            const resultContainer = document.getElementById('result-container');
+            const item = results[0];
+            
+            // تابع کمکی برای نمایش مقدار یا "N/A"
+            const displayValue = (value) => {
+                return value !== undefined && value !== null && value !== '' ? value : '<span class="na-value">N/A</span>';
+            };
+
             let tableHTML = `
                 <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>عنوان مجله</th>
+                            <th>مقدار</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr><th>ISSN</th><td>${item2024 ? item2024[1] : (item2023 ? item2023.ISSN : 'Not Available')}</td></tr>
-                        <tr><th>EiSSN</th><td>${item2024 ? item2024[2] : (item2023 ? item2023.EiSSN : 'Not Available')}</td></tr>
-                        <tr><th>Journal Name</th><td>${item2024 ? item2024[0] : (item2023 ? item2023['Journalname'] : 'Not Available')}</td></tr>
-                        <tr><th>Category</th><td>${item2024 ? item2024[3] : (item2023 ? item2023.Category : 'Not Available')}</td></tr>
-                        <tr><th>Total Citations 2024</th><td>${item2024 ? item2024[5] : 'Not Available'}</td></tr>
-                        <tr><th>Total Citations 2023</th><td>${item2023 ? item2023['TotalCitations'] : 'Not Available'}</td></tr>
-                        <tr><th>JIF 2024 (Impact Factor)</th><td style="font-weight: bold;">${item2024 ? item2024[6] : 'Not Available'}</td></tr>
-                        <tr><th>JIF 2023 (Impact Factor)</th><td>${item2023 ? item2023['JIF 2023'] : 'Not Available'}</td></tr>
-                        <tr><th>JIF 2022</th><td>${item2023 ? item2023['Column_10'] : 'Not Available'}</td></tr>
-                        <tr><th>JIF 2021</th><td>${item2023 ? item2023['Column_11'] : 'Not Available'}</td></tr>
-                        <tr><th>JIF 2020</th><td>${item2023 ? item2023['Column_12'] : 'Not Available'}</td></tr>
-                        <tr><th>JIF Quartile 2024</th><td style="font-weight: bold;">${item2024 ? item2024[8] : 'Not Available'}</td></tr>
-                        <tr><th>JIF Quartile 2023</th><td>${item2023 ? item2023['JIFQuartile'] : 'Not Available'}</td></tr>
-                        <tr><th>JCI 2024</th><td>${item2024 ? item2024[7] : 'Not Available'}</td></tr>
-                        <tr><th>JCI 2023</th><td>${item2023 ? item2023['JCI 2023'] : 'Not Available'}</td></tr>
-                        <tr><th>% of OA Gold 2024</th><td>${item2024 ? item2024[9] : 'Not Available'}</td></tr>
-                        <tr><th>% of OA Gold 2023</th><td>${item2023 ? item2023['% of OA Gold'] : 'Not Available'}</td></tr>
+                        <tr>
+                            <td>ISSN</td>
+                            <td>${displayValue(item.ISSN)}</td>
+                        </tr>
+                        <tr>
+                            <td>eISSN</td>
+                            <td>${displayValue(item.EiSSN)}</td>
+                        </tr>
+                        <tr>
+                            <td>Journal Name</td>
+                            <td>${displayValue(item['Journal Name'])}</td>
+                        </tr>
+                        <tr>
+                            <td>Category</td>
+                            <td>${displayValue(item.Category)}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Citations 2024</td>
+                            <td>${displayValue(item['Total Citations 2024'])}</td>
+                        </tr>
+                        <tr>
+                            <td>JIF 2024 (Impact Factor)</td>
+                            <td>${displayValue(item['JIF 2024 (Impact Factor)'])}</td>
+                        </tr>
+                        <tr>
+                            <td>JIF 2023</td>
+                            <td>${displayValue(item['JIF 2023'])}</td>
+                        </tr>
+                        <tr>
+                            <td>JIF 2022</td>
+                            <td>${displayValue(item['JIF 2022'])}</td>
+                        </tr>
+                        <tr>
+                            <td>JIF 2021</td>
+                            <td>${displayValue(item['JIF 2021'])}</td>
+                        </tr>
+                        <tr>
+                            <td>JIF Quartile 2024</td>
+                            <td>${displayValue(item['JIF Quartile 2024'])}</td>
+                        </tr>
+                        <tr>
+                            <td>JCI 2024</td>
+                            <td>${displayValue(item['JCI 2024'])}</td>
+                        </tr>
+                        <tr>
+                            <td>% of OA Gold 2024</td>
+                            <td>${displayValue(item['% of OA Gold 2024'])}</td>
+                        </tr>
                     </tbody>
                 </table>
             `;
-            tableContainer.innerHTML = tableHTML;
+            resultContainer.innerHTML = tableHTML;
         }
 
-        function plotChart(item2023, item2024) {
-            const jifData = [
-                item2023 ? item2023['Column_12'] : null,
-                item2023 ? item2023['Column_11'] : null,
-                item2023 ? item2023['Column_10'] : null,
-                item2023 ? item2023['JIF 2023'] : null,
-                item2024 ? item2024[6] : null
-            ].filter(value => value !== null);
-
-            const years = ['2020', '2021', '2022', '2023', '2024'].slice(0, jifData.length);
+        function createChart(item) {
             const ctx = document.getElementById('jifChart').getContext('2d');
-            document.getElementById('jifChart').style.display = 'block';
-
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            chartInstance = new Chart(ctx, {
+            
+            // آماده سازی داده‌ها برای نمودار
+            const years = ['2021', '2022', '2023', '2024'];
+            const jifValues = [
+                item['JIF 2021'],
+                item['JIF 2022'],
+                item['JIF 2023'],
+                item['JIF 2024 (Impact Factor)']
+            ].map(val => val ? parseFloat(val) : null);
+            
+            // ایجاد نمودار
+            myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'JIF (Impact Factor)',
-                        data: jifData,
-                        borderColor: 'blue',
-                        backgroundColor: 'red',
-                        pointBackgroundColor: ['red', 'red', 'red', 'gold', 'silver'].slice(0, jifData.length),
-                        fill: false,
-                        borderWidth: 1,
-                        pointRadius: 4,
-                        pointHoverRadius: 5,
+                        label: 'Impact Factor (JIF)',
+                        data: jifValues,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: false
                     }]
                 },
                 options: {
-                    scales: {
-                        x: {
-                            ticks: {
-                                maxRotation: 0,
-                                minRotation: 0,
-                                stepSize: 1,
-                            },
-                            title: {
-                                display: true,
-                                text: 'Years'
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'روند تغییرات Impact Factor در سال‌های مختلف',
+                            font: {
+                                size: 16
                             }
                         },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `JIF: ${context.parsed.y || 'N/A'}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
                         y: {
                             beginAtZero: false,
                             title: {
                                 display: true,
                                 text: 'Impact Factor'
                             }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    elements: {
-                        line: {
-                            tension: 0.2
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'سال'
+                            }
                         }
                     }
                 }
@@ -262,17 +275,18 @@
         }
 
         function displayNotAvailable() {
-            const tableContainer = document.getElementById('table-container');
-            tableContainer.innerHTML = '<div class="not-available">Data not available for the entered ISSN.</div>';
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<p class="not-available">نتیجه‌ای یافت نشد.</p>`;
         }
 
         function clearSearch() {
             document.getElementById('issnInput').value = '';
-            document.getElementById('result-container').style.display = 'none';
-            document.getElementById('table-container').innerHTML = '';
+            document.getElementById('result-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('jifChart').style.display = 'none';    
-            location.reload(); 
+            if (myChart) {
+                myChart.destroy();
+                myChart = null;
+            }
         }
     </script>
 </body>
