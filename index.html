@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            direction: ltr; /* Changed to left-to-right */
+            direction: ltr;
             margin: 20px;
             background-color: #f4f4f4;
         }
@@ -56,7 +56,7 @@
         }
         .result-table th, .result-table td {
             padding: 8px;
-            text-align: left; /* Changed to left align */
+            text-align: left;
             border: 1px solid #ddd;
             word-wrap: break-word;
         }
@@ -68,8 +68,8 @@
             text-align: center;
         }
         #jifChart {
-            width: 10cm; /* Set width to 10cm */
-            height: 10cm; /* Set height to 10cm */
+            width: 10cm;
+            height: 10cm;
             margin-right: 20px;
         }
         .linkedin-icon {
@@ -78,15 +78,12 @@
             margin-left: 5px;
             vertical-align: middle;
         }
-
-        /* New styles for links */
         a {
-            color: #007BFF; /* Set link color to blue */
-            text-decoration: none; /* Remove underline */
+            color: #007BFF;
+            text-decoration: none;
         }
-
         a:hover {
-            text-decoration: underline; /* Optionally add underline on hover */
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -95,7 +92,7 @@
         Programmer: <a href="https://www.linkedin.com/in/saber-s-afshar/" target="_blank">Saber SamadiAfshar</a>
         <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
         |
-	<img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
         Provider: <a href="https://www.linkedin.com/in/ali-nik-akhtar-84ba791a9/" target="_blank">Ali NikAkhtar</a>
     </div>
 
@@ -114,18 +111,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const fileUrl = './Total.json';
-        let dataCache = [];
+        const fileUrl2023 = './Total.json';
+        const fileUrl2024 = 'https://raw.githubusercontent.com/saberafshar93/JIF/main/2024.json';
+        let dataCache2023 = [];
+        let dataCache2024 = [];
         let chartInstance = null;
 
         async function loadJSON() {
-            if (dataCache.length === 0) {
+            if (dataCache2023.length === 0) {
                 try {
-                    const response = await fetch(fileUrl);
-                    if (!response.ok) {
-                        throw new Error('Error loading JSON file');
-                    }
-                    dataCache = await response.json();
+                    const response2023 = await fetch(fileUrl2023);
+                    if (!response2023.ok) throw new Error('Error loading 2023 JSON file');
+                    dataCache2023 = await response2023.json();
+                    
+                    const response2024 = await fetch(fileUrl2024);
+                    if (!response2024.ok) throw new Error('Error loading 2024 JSON file');
+                    dataCache2024 = await response2024.json();
                 } catch (error) {
                     alert('Error loading data: ' + error.message);
                     document.getElementById('loading').style.display = 'none';
@@ -145,52 +146,63 @@
             document.getElementById('jifChart').style.display = 'none';
 
             loadJSON().then(() => {
-                const results = dataCache.filter(item =>
+                const result2023 = dataCache2023.find(item =>
                     item.ISSN.toLowerCase() === issn.toLowerCase() || item.EiSSN.toLowerCase() === issn.toLowerCase()
+                );
+                
+                const result2024 = dataCache2024.find(item =>
+                    item[1].toLowerCase() === issn.toLowerCase() || item[2].toLowerCase() === issn.toLowerCase()
                 );
 
                 document.getElementById('loading').style.display = 'none';
-                if (results.length > 0) {
-                    displayResults(results[0]);
-                    plotChart(results[0]);
+                
+                if (result2023 || result2024) {
+                    displayResults(result2023, result2024);
+                    plotChart(result2023, result2024);
                 } else {
                     displayNotAvailable();
                 }
             });
         }
 
-        function displayResults(item) {
+        function displayResults(item2023, item2024) {
             const tableContainer = document.getElementById('table-container');
             let tableHTML = `
                 <table class="result-table">
                     <tbody>
-                        <tr><th>ISSN</th><td>${item.ISSN || 'Not Available'}</td></tr>
-                        <tr><th>EiSSN</th><td>${item.EiSSN || 'Not Available'}</td></tr>
-                        <tr><th>Journal Name</th><td>${item['Journalname'] || 'Not Available'}</td></tr>
-                        <tr><th>Category</th><td>${item.Category || 'Not Available'}</td></tr>
-                        <tr><th>Total Citations 2023</th><td>${item['TotalCitations'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF 2023 (Impact Factor) </th><td style="font-weight: bold;">${item['JIF 2023'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF 2022</th><td>${item['Column_10'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF 2021</th><td>${item['Column_11'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF 2020</th><td>${item['Column_12'] || 'Not Available'}</td></tr>
-                        <tr><th>JIF Quartile 2023</th><td style="font-weight: bold;">${item['JIFQuartile'] || 'Not Available'}</td></tr>
-                        <tr><th>JCI 2023</th><td>${item['JCI 2023'] || 'Not Available'}</td></tr>
-                        <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold'] || 'Not Available'}</td></tr>
+                        <tr><th>ISSN</th><td>${item2024 ? item2024[1] : (item2023 ? item2023.ISSN : 'Not Available')}</td></tr>
+                        <tr><th>EiSSN</th><td>${item2024 ? item2024[2] : (item2023 ? item2023.EiSSN : 'Not Available')}</td></tr>
+                        <tr><th>Journal Name</th><td>${item2024 ? item2024[0] : (item2023 ? item2023['Journalname'] : 'Not Available')}</td></tr>
+                        <tr><th>Category</th><td>${item2024 ? item2024[3] : (item2023 ? item2023.Category : 'Not Available')}</td></tr>
+                        <tr><th>Total Citations 2024</th><td>${item2024 ? item2024[5] : 'Not Available'}</td></tr>
+                        <tr><th>Total Citations 2023</th><td>${item2023 ? item2023['TotalCitations'] : 'Not Available'}</td></tr>
+                        <tr><th>JIF 2024 (Impact Factor)</th><td style="font-weight: bold;">${item2024 ? item2024[6] : 'Not Available'}</td></tr>
+                        <tr><th>JIF 2023 (Impact Factor)</th><td>${item2023 ? item2023['JIF 2023'] : 'Not Available'}</td></tr>
+                        <tr><th>JIF 2022</th><td>${item2023 ? item2023['Column_10'] : 'Not Available'}</td></tr>
+                        <tr><th>JIF 2021</th><td>${item2023 ? item2023['Column_11'] : 'Not Available'}</td></tr>
+                        <tr><th>JIF 2020</th><td>${item2023 ? item2023['Column_12'] : 'Not Available'}</td></tr>
+                        <tr><th>JIF Quartile 2024</th><td style="font-weight: bold;">${item2024 ? item2024[8] : 'Not Available'}</td></tr>
+                        <tr><th>JIF Quartile 2023</th><td>${item2023 ? item2023['JIFQuartile'] : 'Not Available'}</td></tr>
+                        <tr><th>JCI 2024</th><td>${item2024 ? item2024[7] : 'Not Available'}</td></tr>
+                        <tr><th>JCI 2023</th><td>${item2023 ? item2023['JCI 2023'] : 'Not Available'}</td></tr>
+                        <tr><th>% of OA Gold 2024</th><td>${item2024 ? item2024[9] : 'Not Available'}</td></tr>
+                        <tr><th>% of OA Gold 2023</th><td>${item2023 ? item2023['% of OA Gold'] : 'Not Available'}</td></tr>
                     </tbody>
                 </table>
             `;
             tableContainer.innerHTML = tableHTML;
         }
 
-        function plotChart(item) {
+        function plotChart(item2023, item2024) {
             const jifData = [
-                item['Column_12'] || null,
-                item['Column_11'] || null,
-                item['Column_10'] || null,
-                item['JIF 2023'] || null
+                item2023 ? item2023['Column_12'] : null,
+                item2023 ? item2023['Column_11'] : null,
+                item2023 ? item2023['Column_10'] : null,
+                item2023 ? item2023['JIF 2023'] : null,
+                item2024 ? item2024[6] : null
             ].filter(value => value !== null);
 
-            const years = ['2020', '2021', '2022', '2023'].slice(0, jifData.length);
+            const years = ['2020', '2021', '2022', '2023', '2024'].slice(0, jifData.length);
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
@@ -207,7 +219,7 @@
                         data: jifData,
                         borderColor: 'blue',
                         backgroundColor: 'red',
-                        pointBackgroundColor: ['red', 'red', 'red', 'gold'].slice(0, jifData.length),
+                        pointBackgroundColor: ['red', 'red', 'red', 'gold', 'silver'].slice(0, jifData.length),
                         fill: false,
                         borderWidth: 1,
                         pointRadius: 4,
@@ -220,7 +232,7 @@
                             ticks: {
                                 maxRotation: 0,
                                 minRotation: 0,
-                                stepSize: 1,  // Adjusted the step size for better spacing of the years
+                                stepSize: 1,
                             },
                             title: {
                                 display: true,
@@ -259,8 +271,8 @@
             document.getElementById('result-container').style.display = 'none';
             document.getElementById('table-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('jifChart').style.display = 'none';	
-		location.reload(); 
+            document.getElementById('jifChart').style.display = 'none';    
+            location.reload(); 
         }
     </script>
 </body>
