@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            direction: ltr; /* Changed to left-to-right */
+            direction: ltr;
             margin: 20px;
             background-color: #f4f4f4;
         }
@@ -48,6 +48,17 @@
             color: #555;
             margin-top: 20px;
         }
+        #error-message {
+            display: none;
+            text-align: center;
+            font-size: 16px;
+            color: #d32f2f;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffebee;
+            border-radius: 5px;
+            border: 1px solid #ffcdd2;
+        }
         .result-table {
             width: 60%;
             border-collapse: collapse;
@@ -56,7 +67,7 @@
         }
         .result-table th, .result-table td {
             padding: 8px;
-            text-align: left; /* Changed to left align */
+            text-align: left;
             border: 1px solid #ddd;
             word-wrap: break-word;
         }
@@ -68,8 +79,8 @@
             text-align: center;
         }
         #jifChart {
-            width: 10cm; /* Set width to 10cm */
-            height: 10cm; /* Set height to 10cm */
+            width: 10cm;
+            height: 10cm;
             margin-right: 20px;
         }
         .linkedin-icon {
@@ -78,15 +89,27 @@
             margin-left: 5px;
             vertical-align: middle;
         }
-
-        /* New styles for links */
         a {
-            color: #007BFF; /* Set link color to blue */
-            text-decoration: none; /* Remove underline */
+            color: #007BFF;
+            text-decoration: none;
         }
-
         a:hover {
-            text-decoration: underline; /* Optionally add underline on hover */
+            text-decoration: underline;
+        }
+        .troubleshooting {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .troubleshooting h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .troubleshooting ul {
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -95,7 +118,7 @@
         Programmer: <a href="https://www.linkedin.com/in/saber-s-afshar/" target="_blank">Saber SamadiAfshar</a>
         <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
         |
-	<img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
         Provider: <a href="https://www.linkedin.com/in/ali-nik-akhtar-84ba791a9/" target="_blank">Ali NikAkhtar</a>
     </div>
 
@@ -107,6 +130,17 @@
     </div>
     
     <div id="loading">Searching...</div>
+    <div id="error-message"></div>
+    
+    <div class="troubleshooting">
+        <h4>راه‌حل‌های مشکل CORS:</h4>
+        <ul>
+            <li><strong>استفاده از سرور محلی:</strong> فایل را روی یک وب سرور محلی (مثل XAMPP، WAMP یا Live Server در VS Code) اجرا کنید</li>
+            <li><strong>استفاده از GitHub Pages:</strong> پروژه را روی GitHub Pages هاست کنید</li>
+            <li><strong>استفاده از CDN جایگزین:</strong> از jsDelivr به جای raw.githubusercontent.com استفاده کنید</li>
+        </ul>
+    </div>
+    
     <div id="result-container">
         <div id="table-container"></div>
         <canvas id="jifChart" style="display:none;"></canvas>
@@ -114,49 +148,98 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const fileUrl = 'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2024.json';
+        // استفاده از چندین URL بک‌آپ برای بارگذاری داده‌ها
+        const fileUrls = [
+            'https://cdn.jsdelivr.net/gh/saberafshar93/JIF@main/Total2024.json',
+            'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2024.json'
+        ];
+        
         let dataCache = [];
         let chartInstance = null;
 
         async function loadJSON() {
             if (dataCache.length === 0) {
-                try {
-                    const response = await fetch(fileUrl);
-                    if (!response.ok) {
-                        throw new Error('Error loading JSON file');
+                let lastError = null;
+                
+                // تلاش با URL های مختلف
+                for (const url of fileUrls) {
+                    try {
+                        console.log(`Trying to load from: ${url}`);
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                            mode: 'cors'
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        dataCache = data;
+                        console.log('Data loaded successfully');
+                        return;
+                        
+                    } catch (error) {
+                        console.error(`Failed to load from ${url}:`, error);
+                        lastError = error;
+                        continue;
                     }
-                    dataCache = await response.json();
-                } catch (error) {
-                    alert('Error loading data: ' + error.message);
-                    document.getElementById('loading').style.display = 'none';
                 }
+                
+                // اگر همه URL ها ناموفق بودند
+                throw lastError || new Error('All data sources failed');
             }
         }
 
-        function searchISSN() {
+        async function searchISSN() {
             const issn = document.getElementById('issnInput').value.trim();
             if (!issn) {
                 alert('Please enter an ISSN.');
                 return;
             }
 
+            // نمایش loading و پنهان کردن پیام‌های قبلی
             document.getElementById('loading').style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
             document.getElementById('table-container').innerHTML = '';
             document.getElementById('jifChart').style.display = 'none';
 
-            loadJSON().then(() => {
+            try {
+                await loadJSON();
+                
                 const results = dataCache.filter(item =>
-                    item.ISSN.toLowerCase() === issn.toLowerCase() || item.eISSN.toLowerCase() === issn.toLowerCase()
+                    item.ISSN && item.ISSN.toLowerCase() === issn.toLowerCase() || 
+                    item.eISSN && item.eISSN.toLowerCase() === issn.toLowerCase()
                 );
 
                 document.getElementById('loading').style.display = 'none';
+                
                 if (results.length > 0) {
                     displayResults(results[0]);
                     plotChart(results[0]);
                 } else {
                     displayNotAvailable();
                 }
-            });
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').style.display = 'none';
+                
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.innerHTML = `
+                    <strong>خطا در بارگذاری داده‌ها:</strong><br>
+                    ${error.message}<br><br>
+                    <strong>راه‌حل‌های پیشنهادی:</strong><br>
+                    1. اتصال اینترنت خود را بررسی کنید<br>
+                    2. از VPN استفاده کنید<br>
+                    3. فایل را روی سرور محلی اجرا کنید<br>
+                    4. چند دقیقه دیگر تلاش کنید
+                `;
+                errorMessage.style.display = 'block';
+            }
         }
 
         function displayResults(item) {
@@ -194,9 +277,13 @@
                 item['JIF 2022'] || null,
                 item['JIF 2023 (Impact Factor)'] || null,
                 item['JIF 2024 (Impact Factor)'] || null
-            ].filter(value => value !== null);
+            ].filter(value => value !== null && value !== '' && !isNaN(parseFloat(value)));
 
-            const years = ['2020', '2021', '2022', '2023', '2024'].slice(0, jifData.length);
+            if (jifData.length === 0) {
+                return; // اگر داده‌ای برای چارت نباشد
+            }
+
+            const years = ['2020', '2021', '2022', '2023', '2024'].slice(-jifData.length);
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
@@ -210,7 +297,7 @@
                     labels: years,
                     datasets: [{
                         label: 'JIF (Impact Factor)',
-                        data: jifData,
+                        data: jifData.map(val => parseFloat(val)),
                         borderColor: 'blue',
                         backgroundColor: 'red',
                         pointBackgroundColor: ['red', 'red', 'red', 'gold', 'silver'].slice(0, jifData.length),
@@ -226,7 +313,7 @@
                             ticks: {
                                 maxRotation: 0,
                                 minRotation: 0,
-                                stepSize: 1,  // Adjusted the step size for better spacing of the years
+                                stepSize: 1,
                             },
                             title: {
                                 display: true,
@@ -265,9 +352,15 @@
             document.getElementById('result-container').style.display = 'none';
             document.getElementById('table-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('jifChart').style.display = 'none';	
-		location.reload(); 
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('jifChart').style.display = 'none';
+            location.reload(); 
         }
+
+        // تست اتصال هنگام بارگذاری صفحه
+        window.addEventListener('load', function() {
+            console.log('Page loaded. Testing data connection...');
+        });
     </script>
 </body>
 </html>
