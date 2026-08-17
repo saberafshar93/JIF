@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIF Search</title>
+    <title>JIF Search 2025</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,6 +40,7 @@
             display: flex;
             margin-top: 20px;
             align-items: flex-start;
+            flex-wrap: wrap;
         }
         #loading {
             display: none;
@@ -64,6 +65,7 @@
             border-collapse: collapse;
             font-size: 0.9em;
             line-height: 1.4;
+            min-width: 300px;
         }
         .result-table th, .result-table td {
             padding: 8px;
@@ -82,6 +84,8 @@
             width: 10cm;
             height: 10cm;
             margin-right: 20px;
+            min-width: 250px;
+            min-height: 250px;
         }
         .linkedin-icon {
             width: 15px;
@@ -95,6 +99,27 @@
         }
         a:hover {
             text-decoration: underline;
+        }
+        .chart-wrapper {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+        .table-wrapper {
+            flex: 2;
+            min-width: 300px;
+            overflow-x: auto;
+        }
+        @media (max-width: 768px) {
+            .result-table {
+                width: 100%;
+            }
+            #result-container {
+                flex-direction: column;
+            }
+            .chart-wrapper {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -118,16 +143,18 @@
     <div id="error-message"></div>
     
     <div id="result-container">
-        <div id="table-container"></div>
-        <canvas id="jifChart" style="display:none;"></canvas>
+        <div id="table-container" class="table-wrapper"></div>
+        <div class="chart-wrapper">
+            <canvas id="jifChart" style="display:none; width:100%; height:auto;"></canvas>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // استفاده از چندین URL بک‌آپ برای بارگذاری داده‌ها
+        // استفاده از چندین URL بک‌آپ برای بارگذاری داده‌ها - نسخه 2025
         const fileUrls = [
-            'https://cdn.jsdelivr.net/gh/saberafshar93/JIF@main/Total2024.json',
-            'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2024.json'
+            'https://cdn.jsdelivr.net/gh/saberafshar93/JIF@main/Total2025.json',
+            'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2025.json'
         ];
         
         let dataCache = [];
@@ -155,7 +182,7 @@
                         
                         const data = await response.json();
                         dataCache = data;
-                        console.log('Data loaded successfully');
+                        console.log('Data loaded successfully (2025 version)');
                         return;
                         
                     } catch (error) {
@@ -206,13 +233,13 @@
                 
                 const errorMessage = document.getElementById('error-message');
                 errorMessage.innerHTML = `
-                    <strong>خطا در بارگذاری داده‌ها:</strong><br>
+                    <strong>Error loading data:</strong><br>
                     ${error.message}<br><br>
-                    <strong>راه‌حل‌های پیشنهادی:</strong><br>
-                    1. اتصال اینترنت خود را بررسی کنید<br>
-                    2. از VPN استفاده کنید<br>
-                    3. فایل را روی سرور محلی اجرا کنید<br>
-                    4. چند دقیقه دیگر تلاش کنید
+                    <strong>Suggested solutions:</strong><br>
+                    1. Check your internet connection<br>
+                    2. Use VPN<br>
+                    3. Run the file on a local server<br>
+                    4. Try again in a few minutes
                 `;
                 errorMessage.style.display = 'block';
             }
@@ -227,17 +254,22 @@
                         <tr><th>ISSN</th><td>${item['ISSN'] || '-'}</td></tr>
                         <tr><th>eISSN</th><td>${item['eISSN'] || '-'}</td></tr>
                         <tr><th>Category</th><td>${item['Category'] || '-'}</td></tr>
+                        <tr><th>Total Citations 2025</th><td>${item['Total Citations 2025'] || '-'}</td></tr>
                         <tr><th>Total Citations 2024</th><td>${item['Total Citations 2024'] || '-'}</td></tr>
                         <tr><th>Total Citations 2023</th><td>${item['Total Citations 2023'] || '-'}</td></tr>
+                        <tr><th>JIF 2025 (Impact Factor)</th><td style="font-weight: bold;">${item['JIF 2025 (Impact Factor)'] || '-'}</td></tr>
                         <tr><th>JIF 2024 (Impact Factor)</th><td style="font-weight: bold;">${item['JIF 2024 (Impact Factor)'] || '-'}</td></tr>
                         <tr><th>JIF 2023 (Impact Factor)</th><td style="font-weight: bold;">${item['JIF 2023 (Impact Factor)'] || '-'}</td></tr>
                         <tr><th>JIF 2022</th><td>${item['JIF 2022'] || '-'}</td></tr>
                         <tr><th>JIF 2021</th><td>${item['JIF 2021'] || '-'}</td></tr>
                         <tr><th>JIF 2020</th><td>${item['JIF 2020'] || '-'}</td></tr>
+                        <tr><th>JIF Quartile 2025</th><td style="font-weight: bold;">${item['JIF Quartile 2025'] || '-'}</td></tr>
                         <tr><th>JIF Quartile 2024</th><td style="font-weight: bold;">${item['JIF Quartile 2024'] || '-'}</td></tr>
                         <tr><th>JIF Quartile 2023</th><td style="font-weight: bold;">${item['JIF Quartile 2023'] || '-'}</td></tr>
+                        <tr><th>JCI 2025</th><td>${item['JCI 2025'] || '-'}</td></tr>
                         <tr><th>JCI 2024</th><td>${item['JCI 2024'] || '-'}</td></tr>
                         <tr><th>JCI 2023</th><td>${item['JCI 2023'] || '-'}</td></tr>
+                        <tr><th>% of OA Gold 2025</th><td>${item['% of OA Gold 2025'] || '-'}</td></tr>
                         <tr><th>% of OA Gold 2024</th><td>${item['% of OA Gold 2024'] || '-'}</td></tr>
                         <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold 2023'] || '-'}</td></tr>
                     </tbody>
@@ -247,25 +279,35 @@
         }
 
         function plotChart(item) {
+            // داده‌های JIF از 2020 تا 2025
             const jifData = [
                 item['JIF 2020'] || null,
                 item['JIF 2021'] || null,
                 item['JIF 2022'] || null,
                 item['JIF 2023 (Impact Factor)'] || null,
-                item['JIF 2024 (Impact Factor)'] || null
+                item['JIF 2024 (Impact Factor)'] || null,
+                item['JIF 2025 (Impact Factor)'] || null
             ].filter(value => value !== null && value !== '' && !isNaN(parseFloat(value)));
 
             if (jifData.length === 0) {
                 return; // اگر داده‌ای برای چارت نباشد
             }
 
-            const years = ['2020', '2021', '2022', '2023', '2024'].slice(-jifData.length);
+            // سال‌های متناسب با داده‌های موجود
+            const allYears = ['2020', '2021', '2022', '2023', '2024', '2025'];
+            const startIndex = 6 - jifData.length;
+            const years = allYears.slice(startIndex);
+
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
             if (chartInstance) {
                 chartInstance.destroy();
             }
+
+            // رنگ‌های نقاط بر اساس سال
+            const pointColors = ['red', 'red', 'red', 'gold', 'silver', '#00BFFF'];
+            const colorsToUse = pointColors.slice(startIndex);
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
@@ -275,15 +317,18 @@
                         label: 'JIF (Impact Factor)',
                         data: jifData.map(val => parseFloat(val)),
                         borderColor: 'blue',
-                        backgroundColor: 'red',
-                        pointBackgroundColor: ['red', 'red', 'red', 'gold', 'silver'].slice(0, jifData.length),
-                        fill: false,
-                        borderWidth: 1,
-                        pointRadius: 4,
-                        pointHoverRadius: 5,
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        pointBackgroundColor: colorsToUse,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.3
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
                     scales: {
                         x: {
                             ticks: {
@@ -307,11 +352,13 @@
                     plugins: {
                         legend: {
                             display: false
-                        }
-                    },
-                    elements: {
-                        line: {
-                            tension: 0.2
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'JIF: ' + context.parsed.y;
+                                }
+                            }
                         }
                     }
                 }
@@ -325,17 +372,21 @@
 
         function clearSearch() {
             document.getElementById('issnInput').value = '';
-            document.getElementById('result-container').style.display = 'none';
             document.getElementById('table-container').innerHTML = '';
             document.getElementById('loading').style.display = 'none';
             document.getElementById('error-message').style.display = 'none';
             document.getElementById('jifChart').style.display = 'none';
-            location.reload(); 
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+            // ریست کردن result container
+            document.getElementById('result-container').style.display = 'flex';
         }
 
         // تست اتصال هنگام بارگذاری صفحه
         window.addEventListener('load', function() {
-            console.log('Page loaded. Testing data connection...');
+            console.log('Page loaded. JIF Search 2025 version.');
         });
     </script>
 </body>
