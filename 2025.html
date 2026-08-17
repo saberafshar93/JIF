@@ -1,0 +1,342 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIF Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: ltr;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        #search-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result-container {
+            display: flex;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+        #error-message {
+            display: none;
+            text-align: center;
+            font-size: 16px;
+            color: #d32f2f;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffebee;
+            border-radius: 5px;
+            border: 1px solid #ffcdd2;
+        }
+        .result-table {
+            width: 60%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .result-table th, .result-table td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+            word-wrap: break-word;
+        }
+        .result-table th {
+            background-color: #f2f2f2;
+        }
+        .not-available {
+            color: red;
+            text-align: center;
+        }
+        #jifChart {
+            width: 10cm;
+            height: 10cm;
+            margin-right: 20px;
+        }
+        .linkedin-icon {
+            width: 15px;
+            height: 15px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; font-size: 12px; color: #007BFF; margin-bottom: 5px;">
+        Programmer: <a href="https://www.linkedin.com/in/saber-s-afshar/" target="_blank">Saber SamadiAfshar</a>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
+        |
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Linkedin_icon.svg" alt="LinkedIn" class="linkedin-icon">
+        Provider: <a href="https://www.linkedin.com/in/ali-nik-akhtar-84ba791a9/" target="_blank">Ali NikAkhtar</a>
+    </div>
+
+    <div id="search-container">
+        <h2>Please enter the ISSN of the journal:</h2>
+        <input type="text" id="issnInput" placeholder="Enter ISSN">
+        <button onclick="searchISSN()">Search</button>
+        <button onclick="clearSearch()">Clear</button>
+    </div>
+    
+    <div id="loading">Searching...</div>
+    <div id="error-message"></div>
+    
+    <div id="result-container">
+        <div id="table-container"></div>
+        <canvas id="jifChart" style="display:none;"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // استفاده از چندین URL بک‌آپ برای بارگذاری داده‌ها
+        const fileUrls = [
+            'https://cdn.jsdelivr.net/gh/saberafshar93/JIF@main/Total2024.json',
+            'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2024.json'
+        ];
+        
+        let dataCache = [];
+        let chartInstance = null;
+
+        async function loadJSON() {
+            if (dataCache.length === 0) {
+                let lastError = null;
+                
+                // تلاش با URL های مختلف
+                for (const url of fileUrls) {
+                    try {
+                        console.log(`Trying to load from: ${url}`);
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                            mode: 'cors'
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        dataCache = data;
+                        console.log('Data loaded successfully');
+                        return;
+                        
+                    } catch (error) {
+                        console.error(`Failed to load from ${url}:`, error);
+                        lastError = error;
+                        continue;
+                    }
+                }
+                
+                // اگر همه URL ها ناموفق بودند
+                throw lastError || new Error('All data sources failed');
+            }
+        }
+
+        async function searchISSN() {
+            const issn = document.getElementById('issnInput').value.trim();
+            if (!issn) {
+                alert('Please enter an ISSN.');
+                return;
+            }
+
+            // نمایش loading و پنهان کردن پیام‌های قبلی
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('table-container').innerHTML = '';
+            document.getElementById('jifChart').style.display = 'none';
+
+            try {
+                await loadJSON();
+                
+                const results = dataCache.filter(item =>
+                    item.ISSN && item.ISSN.toLowerCase() === issn.toLowerCase() || 
+                    item.eISSN && item.eISSN.toLowerCase() === issn.toLowerCase()
+                );
+
+                document.getElementById('loading').style.display = 'none';
+                
+                if (results.length > 0) {
+                    displayResults(results[0]);
+                    plotChart(results[0]);
+                } else {
+                    displayNotAvailable();
+                }
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').style.display = 'none';
+                
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.innerHTML = `
+                    <strong>خطا در بارگذاری داده‌ها:</strong><br>
+                    ${error.message}<br><br>
+                    <strong>راه‌حل‌های پیشنهادی:</strong><br>
+                    1. اتصال اینترنت خود را بررسی کنید<br>
+                    2. از VPN استفاده کنید<br>
+                    3. فایل را روی سرور محلی اجرا کنید<br>
+                    4. چند دقیقه دیگر تلاش کنید
+                `;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        function displayResults(item) {
+            const tableContainer = document.getElementById('table-container');
+            let tableHTML = `
+                <table class="result-table">
+                    <tbody>
+                        <tr><th>Journal Name</th><td>${item['Journal Name'] || '-'}</td></tr>
+                        <tr><th>ISSN</th><td>${item['ISSN'] || '-'}</td></tr>
+                        <tr><th>eISSN</th><td>${item['eISSN'] || '-'}</td></tr>
+                        <tr><th>Category</th><td>${item['Category'] || '-'}</td></tr>
+                        <tr><th>Total Citations 2024</th><td>${item['Total Citations 2024'] || '-'}</td></tr>
+                        <tr><th>Total Citations 2023</th><td>${item['Total Citations 2023'] || '-'}</td></tr>
+                        <tr><th>JIF 2024 (Impact Factor)</th><td style="font-weight: bold;">${item['JIF 2024 (Impact Factor)'] || '-'}</td></tr>
+                        <tr><th>JIF 2023 (Impact Factor)</th><td style="font-weight: bold;">${item['JIF 2023 (Impact Factor)'] || '-'}</td></tr>
+                        <tr><th>JIF 2022</th><td>${item['JIF 2022'] || '-'}</td></tr>
+                        <tr><th>JIF 2021</th><td>${item['JIF 2021'] || '-'}</td></tr>
+                        <tr><th>JIF 2020</th><td>${item['JIF 2020'] || '-'}</td></tr>
+                        <tr><th>JIF Quartile 2024</th><td style="font-weight: bold;">${item['JIF Quartile 2024'] || '-'}</td></tr>
+                        <tr><th>JIF Quartile 2023</th><td style="font-weight: bold;">${item['JIF Quartile 2023'] || '-'}</td></tr>
+                        <tr><th>JCI 2024</th><td>${item['JCI 2024'] || '-'}</td></tr>
+                        <tr><th>JCI 2023</th><td>${item['JCI 2023'] || '-'}</td></tr>
+                        <tr><th>% of OA Gold 2024</th><td>${item['% of OA Gold 2024'] || '-'}</td></tr>
+                        <tr><th>% of OA Gold 2023</th><td>${item['% of OA Gold 2023'] || '-'}</td></tr>
+                    </tbody>
+                </table>
+            `;
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        function plotChart(item) {
+            const jifData = [
+                item['JIF 2020'] || null,
+                item['JIF 2021'] || null,
+                item['JIF 2022'] || null,
+                item['JIF 2023 (Impact Factor)'] || null,
+                item['JIF 2024 (Impact Factor)'] || null
+            ].filter(value => value !== null && value !== '' && !isNaN(parseFloat(value)));
+
+            if (jifData.length === 0) {
+                return; // اگر داده‌ای برای چارت نباشد
+            }
+
+            const years = ['2020', '2021', '2022', '2023', '2024'].slice(-jifData.length);
+            const ctx = document.getElementById('jifChart').getContext('2d');
+            document.getElementById('jifChart').style.display = 'block';
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'JIF (Impact Factor)',
+                        data: jifData.map(val => parseFloat(val)),
+                        borderColor: 'blue',
+                        backgroundColor: 'red',
+                        pointBackgroundColor: ['red', 'red', 'red', 'gold', 'silver'].slice(0, jifData.length),
+                        fill: false,
+                        borderWidth: 1,
+                        pointRadius: 4,
+                        pointHoverRadius: 5,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0,
+                                stepSize: 1,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Impact Factor'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.2
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayNotAvailable() {
+            const tableContainer = document.getElementById('table-container');
+            tableContainer.innerHTML = '<div class="not-available">Data not available for the entered ISSN.</div>';
+        }
+
+        function clearSearch() {
+            document.getElementById('issnInput').value = '';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('table-container').innerHTML = '';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('jifChart').style.display = 'none';
+            location.reload(); 
+        }
+
+        // تست اتصال هنگام بارگذاری صفحه
+        window.addEventListener('load', function() {
+            console.log('Page loaded. Testing data connection...');
+        });
+    </script>
+</body>
+</html>
