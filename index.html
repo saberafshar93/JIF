@@ -181,9 +181,10 @@
       color: #1f4a7a;
     }
 
-    /* iframe container */
+    /* iframe container – fixed size, content scaled 80% */
     .iframe-container {
       width: 100%;
+      height: 600px;
       border-radius: 32px;
       overflow: hidden;
       background: rgba(255, 255, 255, 0.3);
@@ -191,26 +192,41 @@
       border: 1px solid rgba(255, 255, 255, 0.4);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
       transition: all 0.3s ease;
+      position: relative;
+    }
+
+    /* wrapper to scale iframe content */
+    .iframe-scaler {
+      width: 125%; /* 100/0.8 = 125% to compensate for scale(0.8) */
+      height: 125%;
+      transform: scale(0.8);
+      transform-origin: top left;
     }
 
     .iframe-container iframe {
       width: 100%;
-      height: 600px;
+      height: 100%;
       border: none;
       display: block;
       background: #f4f4f4;
     }
 
-    /* loading overlay for iframe */
+    /* loading overlay for iframe – positioned relative to container */
     .iframe-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 600px;
       background: rgba(255, 255, 255, 0.5);
       color: #1a3a62;
       font-size: 1.2rem;
       gap: 1rem;
+      z-index: 10;
+      border-radius: 32px;
     }
 
     .iframe-loading i {
@@ -252,8 +268,7 @@
         flex: 1;
         justify-content: center;
       }
-      .iframe-container iframe,
-      .iframe-loading {
+      .iframe-container {
         height: 450px;
       }
     }
@@ -263,8 +278,7 @@
         flex-direction: column;
         align-items: flex-start;
       }
-      .iframe-container iframe,
-      .iframe-loading {
+      .iframe-container {
         height: 380px;
       }
     }
@@ -303,13 +317,15 @@
       </div>
     </div>
 
-    <!-- iframe container -->
+    <!-- iframe container with scaler wrapper -->
     <div class="iframe-container" id="iframeContainer">
       <div class="iframe-loading" id="loadingOverlay">
         <i class="fas fa-spinner"></i>
         <span>Loading 2025...</span>
       </div>
-      <iframe id="contentFrame" src="about:blank"></iframe>
+      <div class="iframe-scaler">
+        <iframe id="contentFrame" src="about:blank"></iframe>
+      </div>
     </div>
 
   </div>
