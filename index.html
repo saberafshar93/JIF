@@ -26,7 +26,7 @@
 
     /* main card – glassmorphism + subtle glow */
     .journal-card {
-      max-width: 860px;
+      max-width: 1200px;
       width: 100%;
       background: rgba(255, 255, 255, 0.55);
       backdrop-filter: blur(16px) saturate(180%);
@@ -128,7 +128,7 @@
       gap: 0.5rem;
       border: 1px solid rgba(255, 255, 255, 0.7);
       box-shadow: 0 10px 20px -10px rgba(0, 20, 40, 0.08);
-      margin: 1.2rem 0 2.2rem 0;
+      margin: 1.2rem 0 1.5rem 0;
       width: auto;
     }
 
@@ -148,7 +148,6 @@
       gap: 0.7rem;
       letter-spacing: 0.3px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-      text-decoration: none; /* remove default link style */
     }
 
     .year-btn i {
@@ -175,106 +174,58 @@
       color: #1f4a7a;
     }
 
-    /* impact panel – clean, minimal */
-    .impact-panel {
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+    /* iframe container */
+    .iframe-container {
+      width: 100%;
       border-radius: 32px;
-      padding: 1.8rem 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 12px 24px -14px rgba(0,0,0,0.06);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+      position: relative;
     }
 
-    .journal-meta {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
+    .iframe-container iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      display: block;
+      background: #f4f4f4;
+    }
+
+    /* loading overlay for iframe */
+    .iframe-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
       align-items: center;
-      border-bottom: 1px solid rgba(60, 80, 110, 0.12);
-      padding-bottom: 1rem;
-      margin-bottom: 1.4rem;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(4px);
+      color: #1a3a62;
+      font-size: 1.2rem;
+      gap: 1rem;
+      z-index: 10;
+      border-radius: 32px;
     }
 
-    .journal-name {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
+    .iframe-loading i {
+      font-size: 2rem;
+      animation: spin 1s linear infinite;
     }
 
-    .journal-name i {
-      font-size: 1.6rem;
-      color: #1f4b7a;
-      background: rgba(255,255,255,0.5);
-      padding: 8px;
-      border-radius: 16px;
-    }
-
-    .journal-name h2 {
-      font-weight: 650;
-      font-size: 1.6rem;
-      color: #0a1d38;
-    }
-
-    .journal-badge {
-      background: linear-gradient(145deg, #1f3f6b, #123057);
-      color: white;
-      padding: 0.3rem 1.2rem;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      box-shadow: 0 6px 12px -6px rgba(18, 48, 87, 0.25);
-    }
-
-    /* IF rows */
-    .if-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.9rem 0.2rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-      font-size: 1.05rem;
-      transition: background 0.15s;
-    }
-
-    .if-row:last-of-type {
-      border-bottom: none;
-    }
-
-    .if-label {
-      color: #2d4b6e;
-      font-weight: 450;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .if-label i {
-      color: #3a6a9e;
-      width: 1.4rem;
-      font-size: 1rem;
-    }
-
-    .if-value {
-      font-weight: 650;
-      color: #091b35;
-      background: rgba(255, 255, 255, 0.4);
-      padding: 0.2rem 1.2rem;
-      border-radius: 60px;
-      font-size: 1.15rem;
-      backdrop-filter: blur(2px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .if-value span {
-      font-weight: 350;
-      font-size: 0.8rem;
-      color: #3e5f86;
-      margin-left: 0.3rem;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     /* responsive */
-    @media (max-width: 680px) {
+    @media (max-width: 860px) {
       .journal-card {
         padding: 1.8rem 1.4rem;
         border-radius: 36px;
@@ -294,17 +245,8 @@
         flex: 1;
         justify-content: center;
       }
-      .impact-panel {
-        padding: 1rem 1rem;
-      }
-      .if-row {
-        flex-wrap: wrap;
-        gap: 0.2rem;
-      }
-      .if-value {
-        width: 100%;
-        text-align: left;
-        padding: 0.2rem 0.8rem;
+      .iframe-container iframe {
+        height: 450px;
       }
     }
 
@@ -313,17 +255,12 @@
         flex-direction: column;
         align-items: flex-start;
       }
-      .journal-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+      .iframe-container iframe {
+        height: 380px;
       }
     }
 
     /* subtle animation */
-    .if-value, .journal-badge {
-      transition: all 0.25s ease;
-    }
     .year-btn:active {
       transform: scale(0.96);
     }
@@ -345,92 +282,97 @@
       </div>
     </div>
 
-    <!-- year buttons: direct links to GitHub pages -->
+    <!-- year buttons -->
     <div class="year-selector" id="yearSelector">
-      <a href="https://github.com/saberafshar93/JIF/blob/main/2024.html" target="_blank" class="year-btn active" data-year="2024" id="btn2024">
+      <button class="year-btn active" data-year="2024" id="btn2024">
         <i class="fas fa-calendar-alt"></i> 2024
-      </a>
-      <a href="https://github.com/saberafshar93/JIF/blob/main/2025.html" target="_blank" class="year-btn" data-year="2025" id="btn2025">
+      </button>
+      <button class="year-btn" data-year="2025" id="btn2025">
         <i class="fas fa-calendar-alt"></i> 2025
-      </a>
+      </button>
     </div>
 
-    <!-- impact panel (static demo content) -->
-    <div class="impact-panel" id="impactPanel">
-      <div class="journal-meta">
-        <div class="journal-name">
-          <i class="fas fa-university"></i>
-          <h2 id="journalTitle">Nature Reviews</h2>
-        </div>
-        <span class="journal-badge" id="journalBadge"><i class="fas fa-star" style="margin-left: 6px;"></i> Q1</span>
+    <!-- iframe container -->
+    <div class="iframe-container" id="iframeContainer">
+      <div class="iframe-loading" id="loadingOverlay">
+        <i class="fas fa-spinner"></i>
+        <span>Loading 2024...</span>
       </div>
-
-      <div class="if-row">
-        <span class="if-label"><i class="fas fa-chart-line"></i> Impact Factor</span>
-        <span class="if-value" id="ifValue">42.7 <span>↑</span></span>
-      </div>
-      <div class="if-row">
-        <span class="if-label"><i class="fas fa-cubes"></i> Subject Rank</span>
-        <span class="if-value" id="rankValue">#2 <span>of 249</span></span>
-      </div>
-      <div class="if-row">
-        <span class="if-label"><i class="fas fa-file-alt"></i> Citations</span>
-        <span class="if-value" id="citationValue">18,200 <span>+12%</span></span>
-      </div>
-      <div class="if-row" style="border-bottom: none; padding-bottom: 0.2rem;">
-        <span class="if-label"><i class="fas fa-clock"></i> Year</span>
-        <span class="if-value" id="yearDisplay" style="background: transparent; border: none; font-weight: 600;">2024</span>
-      </div>
+      <iframe id="contentFrame" src="about:blank"></iframe>
     </div>
-
-    <!-- footer removed as requested -->
 
   </div>
 </div>
 
 <script>
   (function() {
-    // Get the two anchor buttons
     const btn2024 = document.getElementById('btn2024');
     const btn2025 = document.getElementById('btn2025');
+    const iframe = document.getElementById('contentFrame');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-    // Function to update active class (visual feedback)
-    function setActiveYear(year) {
+    // URL mapping
+    const urls = {
+      2024: 'https://github.com/saberafshar93/JIF/blob/main/2024.html',
+      2025: 'https://github.com/saberafshar93/JIF/blob/main/2025.html'
+    };
+
+    // Function to load URL in iframe with loading state
+    function loadYear(year) {
+      // Update active button
       btn2024.classList.remove('active');
       btn2025.classList.remove('active');
       if (year === 2024) {
         btn2024.classList.add('active');
-      } else if (year === 2025) {
+      } else {
         btn2025.classList.add('active');
       }
+
+      // Show loading overlay
+      loadingOverlay.style.display = 'flex';
+      loadingOverlay.innerHTML = `
+        <i class="fas fa-spinner"></i>
+        <span>Loading ${year}...</span>
+      `;
+
+      // Set iframe src
+      iframe.src = urls[year];
+
+      // Hide loading when iframe loads
+      iframe.onload = function() {
+        loadingOverlay.style.display = 'none';
+      };
+
+      // Fallback: hide loading after 8 seconds even if iframe doesn't fire onload
+      clearTimeout(window.loadingTimeout);
+      window.loadingTimeout = setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 8000);
     }
 
-    // Intercept click to update active state BEFORE navigation (optional)
-    // Since they are <a> tags, they will navigate naturally.
-    // We just add a click handler to update the active class for visual feedback.
-    btn2024.addEventListener('click', function(e) {
-      // update active class immediately
-      setActiveYear(2024);
-      // do not prevent default; let the browser navigate
+    // Click handlers
+    btn2024.addEventListener('click', function() {
+      loadYear(2024);
     });
 
-    btn2025.addEventListener('click', function(e) {
-      setActiveYear(2025);
+    btn2025.addEventListener('click', function() {
+      loadYear(2025);
     });
 
-    // set initial active (2024) – matches the href
-    setActiveYear(2024);
-
-    // (optional) keyboard accessibility: treat as buttons
+    // Keyboard accessibility
     document.querySelectorAll('.year-btn').forEach(btn => {
       btn.setAttribute('role', 'button');
       btn.setAttribute('tabindex', '0');
-      // Enter/Space will trigger click (navigation) naturally
+      btn.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        }
+      });
     });
 
-    // The year display text in the panel can be updated based on which link is hovered/clicked?
-    // But we keep it static as a demo. If you want dynamic, you can add a hover effect.
-    // For now, it's fine.
+    // Load default: 2024
+    loadYear(2024);
   })();
 </script>
 
