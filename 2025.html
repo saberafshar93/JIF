@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIF Search 2025</title>
+    <title>JIF Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,7 +40,6 @@
             display: flex;
             margin-top: 20px;
             align-items: flex-start;
-            flex-wrap: wrap;
         }
         #loading {
             display: none;
@@ -60,32 +59,40 @@
             border-radius: 5px;
             border: 1px solid #ffcdd2;
         }
+        /* جدول ثابت: عرض ثابت و layout ثابت، بدون جابجایی هنگام تغییر داده */
         .result-table {
-            width: 60%;
+            width: 700px;
+            max-width: 60vw;
+            table-layout: fixed;
             border-collapse: collapse;
             font-size: 0.9em;
             line-height: 1.4;
-            min-width: 300px;
         }
         .result-table th, .result-table td {
             padding: 8px;
             text-align: left;
             border: 1px solid #ddd;
             word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .result-table th {
             background-color: #f2f2f2;
+            width: 220px;
         }
         .not-available {
             color: red;
             text-align: center;
         }
+        #table-container {
+            width: 700px;
+            max-width: 60vw;
+            min-height: 50px;
+        }
         #jifChart {
             width: 10cm;
             height: 10cm;
             margin-right: 20px;
-            min-width: 250px;
-            min-height: 250px;
+            flex-shrink: 0;
         }
         .linkedin-icon {
             width: 15px;
@@ -100,27 +107,6 @@
         a:hover {
             text-decoration: underline;
         }
-        .chart-wrapper {
-            flex: 1;
-            min-width: 300px;
-            max-width: 500px;
-        }
-        .table-wrapper {
-            flex: 2;
-            min-width: 300px;
-            overflow-x: auto;
-        }
-        @media (max-width: 768px) {
-            .result-table {
-                width: 100%;
-            }
-            #result-container {
-                flex-direction: column;
-            }
-            .chart-wrapper {
-                max-width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -133,7 +119,7 @@
     </div>
 
     <div id="search-container">
-        <h2>Please enter the ISSN of the journal:</h2>
+        <h2>Please enter the ISSN of the journal (JIF 2025):</h2>
         <input type="text" id="issnInput" placeholder="Enter ISSN">
         <button onclick="searchISSN()">Search</button>
         <button onclick="clearSearch()">Clear</button>
@@ -143,15 +129,13 @@
     <div id="error-message"></div>
     
     <div id="result-container">
-        <div id="table-container" class="table-wrapper"></div>
-        <div class="chart-wrapper">
-            <canvas id="jifChart" style="display:none; width:100%; height:auto;"></canvas>
-        </div>
+        <div id="table-container"></div>
+        <canvas id="jifChart" style="display:none;"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // استفاده از چندین URL بک‌آپ برای بارگذاری داده‌ها - نسخه 2025
+        // استفاده از چندین URL بک‌آپ برای بارگذاری داده‌ها
         const fileUrls = [
             'https://cdn.jsdelivr.net/gh/saberafshar93/JIF@main/Total2025.json',
             'https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/Total2025.json'
@@ -182,7 +166,7 @@
                         
                         const data = await response.json();
                         dataCache = data;
-                        console.log('Data loaded successfully (2025 version)');
+                        console.log('Data loaded successfully');
                         return;
                         
                     } catch (error) {
@@ -233,13 +217,13 @@
                 
                 const errorMessage = document.getElementById('error-message');
                 errorMessage.innerHTML = `
-                    <strong>Error loading data:</strong><br>
+                    <strong>خطا در بارگذاری داده‌ها:</strong><br>
                     ${error.message}<br><br>
-                    <strong>Suggested solutions:</strong><br>
-                    1. Check your internet connection<br>
-                    2. Use VPN<br>
-                    3. Run the file on a local server<br>
-                    4. Try again in a few minutes
+                    <strong>راه‌حل‌های پیشنهادی:</strong><br>
+                    1. اتصال اینترنت خود را بررسی کنید<br>
+                    2. از VPN استفاده کنید<br>
+                    3. فایل را روی سرور محلی اجرا کنید<br>
+                    4. چند دقیقه دیگر تلاش کنید
                 `;
                 errorMessage.style.display = 'block';
             }
@@ -279,7 +263,6 @@
         }
 
         function plotChart(item) {
-            // داده‌های JIF از 2020 تا 2025
             const jifData = [
                 item['JIF 2020'] || null,
                 item['JIF 2021'] || null,
@@ -293,21 +276,13 @@
                 return; // اگر داده‌ای برای چارت نباشد
             }
 
-            // سال‌های متناسب با داده‌های موجود
-            const allYears = ['2020', '2021', '2022', '2023', '2024', '2025'];
-            const startIndex = 6 - jifData.length;
-            const years = allYears.slice(startIndex);
-
+            const years = ['2020', '2021', '2022', '2023', '2024', '2025'].slice(-jifData.length);
             const ctx = document.getElementById('jifChart').getContext('2d');
             document.getElementById('jifChart').style.display = 'block';
 
             if (chartInstance) {
                 chartInstance.destroy();
             }
-
-            // رنگ‌های نقاط بر اساس سال
-            const pointColors = ['red', 'red', 'red', 'gold', 'silver', '#00BFFF'];
-            const colorsToUse = pointColors.slice(startIndex);
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
@@ -317,18 +292,15 @@
                         label: 'JIF (Impact Factor)',
                         data: jifData.map(val => parseFloat(val)),
                         borderColor: 'blue',
-                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                        pointBackgroundColor: colorsToUse,
-                        fill: true,
-                        borderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        tension: 0.3
+                        backgroundColor: 'red',
+                        pointBackgroundColor: ['red', 'red', 'red', 'red', 'gold', 'silver'].slice(-jifData.length),
+                        fill: false,
+                        borderWidth: 1,
+                        pointRadius: 4,
+                        pointHoverRadius: 5,
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
                     scales: {
                         x: {
                             ticks: {
@@ -352,13 +324,11 @@
                     plugins: {
                         legend: {
                             display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return 'JIF: ' + context.parsed.y;
-                                }
-                            }
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.2
                         }
                     }
                 }
@@ -376,17 +346,11 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('error-message').style.display = 'none';
             document.getElementById('jifChart').style.display = 'none';
-            if (chartInstance) {
-                chartInstance.destroy();
-                chartInstance = null;
-            }
-            // ریست کردن result container
-            document.getElementById('result-container').style.display = 'flex';
         }
 
         // تست اتصال هنگام بارگذاری صفحه
         window.addEventListener('load', function() {
-            console.log('Page loaded. JIF Search 2025 version.');
+            console.log('Page loaded. Testing data connection...');
         });
     </script>
 </body>
