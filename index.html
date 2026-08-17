@@ -278,11 +278,12 @@
 
     <!-- year buttons -->
     <div class="year-selector" id="yearSelector">
-      <button class="year-btn active" data-year="2024" id="btn2024">
-        <i class="fas fa-calendar-alt"></i> 2024
-      </button>
-      <button class="year-btn" data-year="2025" id="btn2025">
+      <!-- 2025 first (left) and active by default -->
+      <button class="year-btn active" data-year="2025" id="btn2025">
         <i class="fas fa-calendar-alt"></i> 2025
+      </button>
+      <button class="year-btn" data-year="2024" id="btn2024">
+        <i class="fas fa-calendar-alt"></i> 2024
       </button>
     </div>
 
@@ -290,7 +291,7 @@
     <div class="iframe-container" id="iframeContainer">
       <div class="iframe-loading" id="loadingOverlay">
         <i class="fas fa-spinner"></i>
-        <span>Loading 2024...</span>
+        <span>Loading 2025...</span>
       </div>
       <iframe id="contentFrame" src="about:blank"></iframe>
     </div>
@@ -365,8 +366,8 @@
       });
     });
 
-    // Load default: 2024
-    loadYear(2024);
+    // Load default: 2025 (since it's the first/active button)
+    loadYear(2025);
   })();
 </script>
 
