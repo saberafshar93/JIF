@@ -38,8 +38,9 @@
         }
         #result-container {
             display: flex;
-            margin-top: 20px;
+            margin-top: 15px;
             align-items: flex-start;
+            flex-wrap: wrap;
         }
         #loading {
             display: none;
@@ -59,17 +60,17 @@
             border-radius: 5px;
             border: 1px solid #ffcdd2;
         }
-        /* جدول ثابت: عرض ثابت و layout ثابت، بدون جابجایی هنگام تغییر داده */
+        /* جدول کوچیک و ثابت: عرض و layout ثابت، بدون جابجایی هنگام تغییر داده */
         .result-table {
-            width: 700px;
-            max-width: 60vw;
+            width: 400px;
+            max-width: 42vw;
             table-layout: fixed;
             border-collapse: collapse;
-            font-size: 0.9em;
-            line-height: 1.4;
+            font-size: 0.75em;
+            line-height: 1.25;
         }
         .result-table th, .result-table td {
-            padding: 8px;
+            padding: 4px 6px;
             text-align: left;
             border: 1px solid #ddd;
             word-wrap: break-word;
@@ -77,22 +78,26 @@
         }
         .result-table th {
             background-color: #f2f2f2;
-            width: 220px;
+            width: 150px;
         }
         .not-available {
             color: red;
             text-align: center;
         }
         #table-container {
-            width: 700px;
-            max-width: 60vw;
+            width: 400px;
+            max-width: 42vw;
             min-height: 50px;
+            order: 2;
         }
         #jifChart {
-            width: 10cm;
-            height: 10cm;
+            width: 8cm !important;
+            height: 8cm !important;
+            max-width: 45vw;
+            max-height: 45vw;
             margin-right: 20px;
             flex-shrink: 0;
+            order: 1;
         }
         .linkedin-icon {
             width: 15px;
@@ -129,8 +134,8 @@
     <div id="error-message"></div>
     
     <div id="result-container">
+        <canvas id="jifChart" width="300" height="300" style="display:none;"></canvas>
         <div id="table-container"></div>
-        <canvas id="jifChart" style="display:none;"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -301,6 +306,8 @@
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: {
                             ticks: {
