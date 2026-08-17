@@ -1,380 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Journal Impact Factor · Year Selector</title>
-  <!-- Font Awesome 6 (free) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIF Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      background: radial-gradient(circle at 10% 30%, #f0f6ff, #dae5f0);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      padding: 1.5rem;
-      direction: ltr;
-    }
+        body {
+            background: radial-gradient(circle at 10% 30%, #f0f6ff, #dae5f0);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 1.5rem;
+        }
 
-    /* main card – glassmorphism + subtle glow */
-    .journal-card {
-      max-width: 1200px;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.55);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border-radius: 56px;
-      padding: 2.8rem 2.8rem;
-      box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.25),
-                  0 10px 30px -10px rgba(0, 0, 0, 0.05),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-    }
+        .selector-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 40px;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
 
-    /* decorative orbs */
-    .journal-card::before {
-      content: '';
-      position: absolute;
-      top: -15%;
-      right: -10%;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(41, 98, 255, 0.10) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-    }
+        h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            color: #0a1c38;
+            margin-bottom: 0.5rem;
+        }
 
-    .journal-card::after {
-      content: '';
-      position: absolute;
-      bottom: -15%;
-      left: -5%;
-      width: 280px;
-      height: 280px;
-      background: radial-gradient(circle, rgba(136, 84, 208, 0.08) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-    }
+        .subtitle {
+            color: #2d4b72;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
 
-    .card-content {
-      position: relative;
-      z-index: 2;
-    }
+        .year-selector {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-    /* header */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
+        .year-btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.3rem;
+            padding: 0.9rem 2.8rem;
+            border: none;
+            border-radius: 60px;
+            background: rgba(255, 255, 255, 0.5);
+            color: #1f3e62;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
 
-    .header-icon {
-      background: linear-gradient(145deg, #1a2e6b, #0f1f4a);
-      width: 64px;
-      height: 64px;
-      border-radius: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 2.1rem;
-      box-shadow: 0 14px 20px -8px rgba(18, 40, 85, 0.25);
-    }
+        .year-btn i {
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
 
-    .header-text h1 {
-      font-weight: 700;
-      font-size: 2.1rem;
-      letter-spacing: -0.02em;
-      color: #0a1c38;
-      line-height: 1.2;
-    }
+        .year-btn:hover {
+            background: #ffffff;
+            transform: scale(1.03);
+            box-shadow: 0 12px 24px -12px rgba(20, 60, 120, 0.25);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
 
-    .header-text .sub {
-      font-weight: 400;
-      font-size: 0.95rem;
-      color: #2d4b72;
-      background: rgba(255, 255, 255, 0.6);
-      padding: 0.2rem 1.2rem;
-      border-radius: 40px;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      display: inline-block;
-      margin-top: 4px;
-    }
+        .year-btn:active {
+            transform: scale(0.97);
+        }
 
-    /* year selector – two elegant buttons */
-    .year-selector {
-      background: rgba(235, 244, 255, 0.5);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border-radius: 80px;
-      padding: 0.5rem;
-      display: inline-flex;
-      gap: 0.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: 0 10px 20px -10px rgba(0, 20, 40, 0.08);
-      margin: 1.2rem 0 1.5rem 0;
-      width: auto;
-    }
+        .year-btn.btn-2024 {
+            background: rgba(26, 46, 107, 0.08);
+        }
 
-    .year-btn {
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 1.2rem;
-      padding: 0.75rem 2.6rem;
-      border: none;
-      border-radius: 60px;
-      background: transparent;
-      color: #1f3e62;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      letter-spacing: 0.3px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-    }
+        .year-btn.btn-2024:hover {
+            background: #ffffff;
+            color: #0a1e3b;
+        }
 
-    .year-btn i {
-      font-size: 1.1rem;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
+        .year-btn.btn-2025 {
+            background: rgba(136, 84, 208, 0.08);
+        }
 
-    .year-btn:hover {
-      background: rgba(255, 255, 255, 0.5);
-      transform: scale(1.02);
-      color: #0a2848;
-    }
+        .year-btn.btn-2025:hover {
+            background: #ffffff;
+            color: #0a1e3b;
+        }
 
-    .year-btn.active {
-      background: #ffffff;
-      color: #0a1e3b;
-      box-shadow: 0 14px 24px -12px rgba(20, 60, 120, 0.25), 0 2px 8px rgba(0,0,0,0.02);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-    }
-
-    .year-btn.active i {
-      opacity: 1;
-      color: #1f4a7a;
-    }
-
-    /* iframe container */
-    .iframe-container {
-      width: 100%;
-      border-radius: 32px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .iframe-container iframe {
-      width: 100%;
-      height: 600px;
-      border: none;
-      display: block;
-      background: #f4f4f4;
-    }
-
-    /* loading overlay for iframe */
-    .iframe-loading {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(4px);
-      color: #1a3a62;
-      font-size: 1.2rem;
-      gap: 1rem;
-      z-index: 10;
-      border-radius: 32px;
-    }
-
-    .iframe-loading i {
-      font-size: 2rem;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* responsive */
-    @media (max-width: 860px) {
-      .journal-card {
-        padding: 1.8rem 1.4rem;
-        border-radius: 36px;
-      }
-      .header-text h1 {
-        font-size: 1.5rem;
-      }
-      .year-selector {
-        width: 100%;
-        justify-content: center;
-        padding: 0.4rem;
-        gap: 0.3rem;
-      }
-      .year-btn {
-        font-size: 1rem;
-        padding: 0.5rem 1.2rem;
-        flex: 1;
-        justify-content: center;
-      }
-      .iframe-container iframe {
-        height: 450px;
-      }
-    }
-
-    @media (max-width: 460px) {
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .iframe-container iframe {
-        height: 380px;
-      }
-    }
-
-    /* subtle animation */
-    .year-btn:active {
-      transform: scale(0.96);
-    }
-  </style>
+        @media (max-width: 480px) {
+            .selector-card {
+                padding: 1.8rem 1.2rem;
+            }
+            .year-btn {
+                font-size: 1.1rem;
+                padding: 0.7rem 1.8rem;
+                width: 100%;
+                justify-content: center;
+            }
+            .year-selector {
+                flex-direction: column;
+                gap: 0.7rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="journal-card">
-  <div class="card-content">
+    <div class="selector-card">
+        <h1>📘 JIF Selector</h1>
+        <p class="subtitle">Choose a year to view impact factor data</p>
 
-    <!-- header -->
-    <div class="header">
-      <div class="header-icon">
-        <i class="fas fa-scroll"></i>
-      </div>
-      <div class="header-text">
-        <h1>Journal Impact Factor</h1>
-        <span class="sub"><i class="fas fa-book-open" style="margin-left: 6px;"></i> 2024 · 2025 selector</span>
-      </div>
+        <div class="year-selector">
+            <a href="https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/2024.html" class="year-btn btn-2024">
+                <i class="fas fa-calendar-alt"></i> 2024
+            </a>
+            <a href="https://raw.githubusercontent.com/saberafshar93/JIF/refs/heads/main/2025.html" class="year-btn btn-2025">
+                <i class="fas fa-calendar-alt"></i> 2025
+            </a>
+        </div>
     </div>
 
-    <!-- year buttons -->
-    <div class="year-selector" id="yearSelector">
-      <button class="year-btn active" data-year="2024" id="btn2024">
-        <i class="fas fa-calendar-alt"></i> 2024
-      </button>
-      <button class="year-btn" data-year="2025" id="btn2025">
-        <i class="fas fa-calendar-alt"></i> 2025
-      </button>
-    </div>
-
-    <!-- iframe container -->
-    <div class="iframe-container" id="iframeContainer">
-      <div class="iframe-loading" id="loadingOverlay">
-        <i class="fas fa-spinner"></i>
-        <span>Loading 2024...</span>
-      </div>
-      <iframe id="contentFrame" src="about:blank"></iframe>
-    </div>
-
-  </div>
-</div>
-
-<script>
-  (function() {
-    const btn2024 = document.getElementById('btn2024');
-    const btn2025 = document.getElementById('btn2025');
-    const iframe = document.getElementById('contentFrame');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-
-    // URL mapping
-    const urls = {
-      2024: 'https://github.com/saberafshar93/JIF/blob/main/2024.html',
-      2025: 'https://github.com/saberafshar93/JIF/blob/main/2025.html'
-    };
-
-    // Function to load URL in iframe with loading state
-    function loadYear(year) {
-      // Update active button
-      btn2024.classList.remove('active');
-      btn2025.classList.remove('active');
-      if (year === 2024) {
-        btn2024.classList.add('active');
-      } else {
-        btn2025.classList.add('active');
-      }
-
-      // Show loading overlay
-      loadingOverlay.style.display = 'flex';
-      loadingOverlay.innerHTML = `
-        <i class="fas fa-spinner"></i>
-        <span>Loading ${year}...</span>
-      `;
-
-      // Set iframe src
-      iframe.src = urls[year];
-
-      // Hide loading when iframe loads
-      iframe.onload = function() {
-        loadingOverlay.style.display = 'none';
-      };
-
-      // Fallback: hide loading after 8 seconds even if iframe doesn't fire onload
-      clearTimeout(window.loadingTimeout);
-      window.loadingTimeout = setTimeout(() => {
-        loadingOverlay.style.display = 'none';
-      }, 8000);
-    }
-
-    // Click handlers
-    btn2024.addEventListener('click', function() {
-      loadYear(2024);
-    });
-
-    btn2025.addEventListener('click', function() {
-      loadYear(2025);
-    });
-
-    // Keyboard accessibility
-    document.querySelectorAll('.year-btn').forEach(btn => {
-      btn.setAttribute('role', 'button');
-      btn.setAttribute('tabindex', '0');
-      btn.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.click();
-        }
-      });
-    });
-
-    // Load default: 2024
-    loadYear(2024);
-  })();
-</script>
-
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </body>
 </html>
